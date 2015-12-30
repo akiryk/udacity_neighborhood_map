@@ -1,0 +1,19 @@
+{
+  "name": "bower stuff",
+  "version": "1.0.0",
+  "description": "Just some bower defaults",
+  "main": "",
+  "keywords": [
+    "no"
+  ],
+  "authors": [
+    "akiryk"
+  ],
+  "license": "MIT",
+  "homepage": "index.html",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ]
+}

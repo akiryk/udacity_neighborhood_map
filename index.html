@@ -1,0 +1,45 @@
+<!doctype html>
+<html class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+  <!--
+  live reload script
+  (comment this out) build:remove
+  <script src="http://localhost:35729/livereload.js"></script>
+  (comment this out) /build
+  -->
+
+  <!-- build:remove -->
+    <script src="http://localhost:35729/livereload.js"></script>
+  <!-- /build -->
+  <script src="https://www.google.com/jsapi"></script>
+  <title>neighborhood</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="prod/css/style.css">
+</head>
+
+
+<body>
+
+  <div id="content"></div>
+
+  <nav class="filters">
+    <input data-bind="value: location" type="text">
+    <button data-bind="click: changeSomething">Submit</button>
+    <button data-bind="click: getInstagramData" class='btn'>Instagram</button>
+    <div id="data-display"></div>
+  </nav>
+
+  <div id="map" class="main-map"></div>
+
+  <script src="bower_components/knockout/dist/knockout.js"></script>
+  <script src="dev/js/libs/jquery.js"></script>
+  <script src="dev/js/libs/markerClusterer.js"></script>
+  <script src="dev/js/main.js"></script>
+  <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9_V4fG-umELVwoyKKRm4jQ8XODuwV9MA&callback=initMap">
+    </script>
+</body>
+</html>

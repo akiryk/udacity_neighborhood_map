@@ -1,0 +1,44 @@
+@import 'modules/normalize';
+@import 'modules/variables';
+@import 'modules/mixins';
+@import 'modules/base';
+@import 'modules/layout';
+
+#map {
+	height: 100vh;
+}
+
+.filters {
+	background-color: hsla(0,0%,0%,0.65);
+	position: fixed;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	transition: all .4s;
+	width: 300px;
+	z-index: 99;
+}
+
+.filters:hover {
+	background-color: hsla(0,0%,0%,0.75);
+	box-shadow:inset 0 0 150px hsla(0,0%,0%,0.75);
+}
+
+.btn {
+	color: white;
+}
+
+ul.thumbnails {
+	overflow: scroll;
+}
+
+#iw-container  .iw-title {
+   font-family: 'Open Sans Condensed', sans-serif;
+   font-size: 22px;
+   font-weight: 400;
+   padding: 10px;
+   background-color: #48b5e9;
+   color: white;
+   margin: 1px;
+   border-radius: 2px 2px 0 0; /* In accordance with the rounding of the default infowindow corners. */
+}
