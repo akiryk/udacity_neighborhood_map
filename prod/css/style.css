@@ -370,42 +370,47 @@ img {
   height: 100vh; }
 
 .sidebar {
-  background-color: #f1f2f3;
+  background-color: rgba(255, 255, 255, 0.55);
   position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
-  overflow: scroll;
+  overflow-y: scroll;
   transition: all .4s;
   width: 300px;
   z-index: 99; }
+  .sidebar:hover {
+    background-color: rgba(255, 255, 255, 0.8); }
 
 /********************************
  ** TITLE AREA **
  ********************************/
 .title-block {
-  padding: 0 16px;
-  margin-bottom: 1em; }
+  background-color: #222;
+  padding: 16px;
+  margin-bottom: 10px; }
 
 .main-title {
-  font-size: 20px;
-  margin-bottom: 6px; }
+  color: #eee;
+  font-size: 18px;
+  font-weight: normal;
+  margin: 0 0 6px; }
 
 .date-range {
   display: block;
   font-weight: 400;
-  font-size: 19px;
-  color: #555; }
+  font-size: 17px;
+  color: #777; }
 
 .citation {
   font-size: 12px;
   color: #888; }
 
 .citation-link {
-  color: #444;
+  color: #888;
   text-decoration: none; }
   .citation-link:hover {
-    color: #000;
+    color: #fff;
     text-decoration: underline; }
 
 /********************************
@@ -432,7 +437,8 @@ label {
   padding: 10px 16px 10px 16px;
   transition: background-color .3s; }
   .incident-item:hover {
-    background-color: #fff; }
+    background-color: #fff;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.33); }
   .incident-item.active {
     background-color: #ffe500; }
 
@@ -449,13 +455,8 @@ label {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.5); }
 
-#iw-container .iw-title {
-  font-family: 'Open Sans Condensed', sans-serif;
-  font-size: 22px;
-  font-weight: 400;
-  padding: 10px;
-  background-color: #48b5e9;
-  color: white;
-  margin: 1px;
-  border-radius: 2px 2px 0 0;
-  /* In accordance with the rounding of the default infowindow corners. */ }
+/********************************
+ ** INFO WINDOWS **
+ ********************************/
+.info-heading {
+  text-transform: capitalize; }

@@ -9,11 +9,16 @@ var map;
 var app = (function(){
 	'use strict';
 
+	var infoWindow,
+			currentIncident;
+
 	/*
 	 * Incident Model
 	 * @param {json} incidentData - data for a single gun violence incident.
 	 */
 	var Incident = function(incidentData){
+
+		var self = this;
 
 		this.date = ko.observable(incidentData['Incident Date']);
 
@@ -33,18 +38,41 @@ var app = (function(){
 			return incidentData['City Or County'] + ', ' + incidentData['State'];
 		}, this);
 
+		this.marker = new google.maps.Marker({
+	      position: new google.maps.LatLng(incidentData['latitude'], incidentData['longitude']),
+	      map: map,
+	      parent: this
+		  });
+
 		// data doesn't need to be an observable. 
 		// we can reference when necessary to get additional information
 		// about an incident.
 		this.data = incidentData;
 
-		this.position = new google.maps.LatLng(incidentData['latitude'], incidentData['longitude']);
-	  this.marker = new google.maps.Marker({
-      position: this.position,
-      map: map,
-      parent: this
-	  });
+	}
 
+	Incident.prototype.onClickMarker = function(evt){
+    if (map.getZoom()<12){
+    	map.setZoom(12);
+    	map.setCenter(this.marker.getPosition());
+    }
+    this.setupInfoWindow();
+	}
+
+	Incident.prototype.onClickListItem = function(evt){
+		map.setZoom(12);
+    map.setCenter(this.marker.getPosition());
+    this.setupInfoWindow();
+	}
+
+	Incident.prototype.setupInfoWindow = function(){
+		currentIncident = this;
+    infoWindow.setContent(this.desc());
+    infoWindow.open(map, this.marker);
+
+		// infoWindow.setPosition({lat:this.data.latitude,lng:this.data.longitude});
+    var searchString = 'Shooting, ' + this.date() + ', ' + this.location();
+  	searchNews(searchString);
 	}
 
 	/*
@@ -54,8 +82,11 @@ var app = (function(){
 	var AppViewModel = function(allIncidents){
 
 		var self = this,
-				inc,
-				markers = [];
+				pos,
+				marker,
+				inc;
+				
+		this.markers = ko.observableArray([]);
 
 		// List of gun violence incidents
 		this.incidentList = ko.observableArray([]);
@@ -66,14 +97,15 @@ var app = (function(){
 		allIncidents.forEach(function(singleIncident){
 			inc = new Incident(singleIncident);
 			self.incidentList.push(inc);
-			markers.push(inc.marker);
+			inc.marker.addListener('click', inc.onClickMarker.bind(inc));
+			self.markers.push(inc.marker);
 			// Add each state to list only once
 			if (self.listOfStates().indexOf(singleIncident['State'])<0){
 				self.listOfStates.push(singleIncident['State']);
 			}
 		});
 
-		initMarkerClusters();
+		//initMarkerClusters(self.markers());
 
 		// Maintain a list of incidents that won't change
 		// so we can reset list when necessary.
@@ -102,8 +134,12 @@ var app = (function(){
 			$(self.selectedIncident()).removeClass('active');
 			self.selectedIncident(event.currentTarget);
 			$(self.selectedIncident()).addClass('active');
-			map.setZoom(14);
-    	map.setCenter(clickedIncident.position);
+    	// map.setCenter({lat: clickedIncident.data.latitude, lng: clickedIncident.data.longitude});
+    	window.setTimeout(function(){
+    		clickedIncident.marker.setAnimation(null);
+    	}, 2500);
+    	clickedIncident.marker.setAnimation(google.maps.Animation.BOUNCE);
+    	clickedIncident.onClickListItem();
 		}
 
 		/*
@@ -117,6 +153,10 @@ var app = (function(){
 			self.selectedMonth('All');
 			map.setZoom(5);
 			map.setCenter({lat: 37.856365, lng: -98.341694});
+			this.markers().forEach(function(marker){
+				marker.setMap(map);
+			});
+			infoWindow.close();
 		}
 
 		/*
@@ -142,7 +182,16 @@ var app = (function(){
 					return el.date().split(' ')[0] == month;
 				}));
 			}
-			
+
+			this.markers().filter(function(marker){
+				if(self.incidentList().indexOf(marker.parent)!=-1){
+					return true;
+				} else {
+					marker.setMap(null);
+				}
+			});
+			//self.mc.clearMarkers()
+			//initMarkerClusters(newMarkers);
 		}
 
 		/**
@@ -158,20 +207,10 @@ var app = (function(){
    * by only displaying 1 marker for multiple instances that
    * occur in the same general area.
    */
-		function initMarkerClusters(){
+		function initMarkerClusters(markers){
 			var mcOptions = {gridSize: 50, maxZoom: 15};
-		  var mc = new MarkerClusterer(map, markers, mcOptions);
-		}
-		  //infoWindow = new google.maps.InfoWindow({ maxWidth: 300 });
-
-		 //  function markerListener(){
-		 //  	currentIncident = self.incident;
-		 //  	var searchString = 'Shooting, ' + currentIncident['Incident Date'] + ', ' + currentIncident['Concatenated Address'];
-		 //  	searchNews(searchString);
-			// 	infoWindow.setContent(this.incident['Killed and Injured'] + ' killed and injured');
-		 //    infoWindow.open(map, this);
-			// }
-	
+		  self.mc = new MarkerClusterer(map, markers, mcOptions);
+		}	
 
 	}
 
@@ -191,32 +230,27 @@ var app = (function(){
 			});
 	}
 
-	var infoWindow,
-			currentIncident;
-
-
-
-
 	// This code generates a "Raw Searcher" to handle search queries. The Raw 
 	// Searcher requires you to handle and draw the search results manually.
-	//google.load('search', '1');
+	google.load('search', '1');
 
-/*	var newsSearch;
+	var newsSearch;
 
 	var infoTemplate = 	'<h2 class="info-heading">%title%</h2>' +
 											'<ul class="news-stories">%list-items%</ul>';
 
 	function searchComplete() {
+		console.dir(currentIncident);
 	  // Check that we got results
 	  if (newsSearch.results && newsSearch.results.length > 0) {
 
 	  	var listItems = '';
-	  	var len = newsSearch.results.length > 3 ? 3:newsSearch.results.length;
+	  	var len = newsSearch.results.length;// > 3 ? 3:newsSearch.results.length;
 	  	for (var i=0; i<len; i++){
 	  		listItems += '<li><a href="' + newsSearch.results[i].unescapedUrl + '">' + newsSearch.results[i].titleNoFormatting + '</a></li>';
 	  	}
 
-	  	var str = infoTemplate.replace(/%title%/i, currentIncident['Killed and Injured'] + ' killed and injured in shooting near ' + currentIncident['City Or County'] + ', ' + currentIncident['State']);
+	  	var str = infoTemplate.replace(/%title%/i, currentIncident.data['# Killed'] + ' killed and ' + currentIncident.data['# Injured'] + ' injured in shooting near ' + currentIncident.location());
 	  	str = str.replace(/%list-items%/i, listItems);
 	  	infoWindow.setContent(str);
 	  
@@ -238,10 +272,13 @@ var app = (function(){
 	  // Include the required Google branding
 	  //google.search.Search.getBranding('branding');
 
-	} */
+	} 
 
 	return {
-		init: loadData
+		init: function(){
+			loadData();
+			infoWindow = new google.maps.InfoWindow({ maxWidth: 300 });
+		}
 	}
 
 })();
