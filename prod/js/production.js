@@ -128,22 +128,34 @@ v.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.vb.prototype=new a.O;var b
  * 
  */
 
-var map;
 
 var app = (function(){
+
 	'use strict';
 
-	var infoWindow,
+	// This code generates a "Raw Searcher" to handle search queries. The Raw 
+	// Searcher requires you to handle and draw the search results manually.
+	google.load('search', '1');
+
+	var map,
+			viewModel,
+			infoWindow,
 			currentIncident;
+
+	/*
+	 * The Data Model
+	 */
+	 var mapData = {};
 
 	/*
 	 * Incident Model
 	 * @param {json} incidentData - data for a single gun violence incident.
 	 */
-	var Incident = function(incidentData){
-
+	var Incident = function(incidentData, parent){
 		var self = this;
 
+		this.parent = parent;
+		console.log(this.parent);
 		this.date = ko.observable(incidentData['Incident Date']);
 
 		this.desc = ko.computed(function(){
@@ -164,9 +176,9 @@ var app = (function(){
 
 		this.marker = new google.maps.Marker({
 	      position: new google.maps.LatLng(incidentData['latitude'], incidentData['longitude']),
-	      map: map,
+	      map: self.parent.map,
 	      parent: this
-		  });
+	  });
 
 		// data doesn't need to be an observable. 
 		// we can reference when necessary to get additional information
@@ -176,39 +188,40 @@ var app = (function(){
 	}
 
 	Incident.prototype.onClickMarker = function(evt){
-    if (map.getZoom()<12){
-    	map.setZoom(12);
-    	map.setCenter(this.marker.getPosition());
+    if (this.parent.map.getZoom()<12){
+    	this.parent.map.setZoom(12);
+    	this.parent.map.setCenter(this.marker.getPosition());
     }
     this.setupInfoWindow();
 	}
 
 	Incident.prototype.onClickListItem = function(evt){
-		map.setZoom(12);
-    map.setCenter(this.marker.getPosition());
+		this.parent.map.setZoom(12);
+    this.parent.map.setCenter(this.marker.getPosition());
     this.setupInfoWindow();
 	}
 
 	Incident.prototype.setupInfoWindow = function(){
 		currentIncident = this;
     infoWindow.setContent(this.desc());
-    infoWindow.open(map, this.marker);
-
-		// infoWindow.setPosition({lat:this.data.latitude,lng:this.data.longitude});
-    var searchString = 'Shooting, ' + this.date() + ', ' + this.location();
-  	searchNews(searchString);
+    infoWindow.open(this.parent.map, this.marker);
+    viewModel.createSearch(this);
 	}
 
 	/*
 	 * Knockout ViewModel 
-	 * @param {json} allIncidents - set of data in json format.
 	 */
-	var AppViewModel = function(allIncidents){
+	var AppViewModel = function(){
 
 		var self = this,
 				pos,
 				marker,
 				inc;
+
+		self.map = new google.maps.Map(document.getElementById('map'), {
+	    center: {lat: 37.856365, lng: -98.341694},
+	    zoom: 5
+	  }); 				
 				
 		this.markers = ko.observableArray([]);
 
@@ -218,8 +231,8 @@ var app = (function(){
 		this.listOfStates = ko.observableArray([]);
 
 		// Loop through json data for all incidents
-		allIncidents.forEach(function(singleIncident){
-			inc = new Incident(singleIncident);
+		mapData.forEach(function(singleIncident){
+			inc = new Incident(singleIncident, self);
 			self.incidentList.push(inc);
 			inc.marker.addListener('click', inc.onClickMarker.bind(inc));
 			self.markers.push(inc.marker);
@@ -228,8 +241,6 @@ var app = (function(){
 				self.listOfStates.push(singleIncident['State']);
 			}
 		});
-
-		//initMarkerClusters(self.markers());
 
 		// Maintain a list of incidents that won't change
 		// so we can reset list when necessary.
@@ -249,6 +260,31 @@ var app = (function(){
 
 		this.selectedIncident = ko.observable();
 
+		this.customSearchTerms = ko.observable('Gun shooting');
+
+		this.fixedSearchTerms = ko.observable();
+
+		this.completeSearch = ko.computed(function(){
+			return self.customSearchTerms() + ', ' + self.fixedSearchTerms();
+		}, this);
+
+		this.query = ko.observable('');
+
+		this.filterLocations = function(value) {
+
+			self.incidentList.removeAll();
+
+			// Add incidents back if they match the query string
+	    for(var incident in self.fixedList) {
+	      if(self.fixedList[incident].location().toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+	        self.incidentList.push(self.fixedList[incident]);
+	        self.fixedList[incident].marker.setMap(map);
+	      } 
+	    }
+	  }
+
+		this.query.subscribe(this.filterLocations);
+
 		/**
 		 * Make an incident "Active" when a user clicks on it
 		 * This means: change the css of the list item and
@@ -267,20 +303,41 @@ var app = (function(){
 		}
 
 		/*
-		 * Reset list of incidents
-		 * Revert to original complete list without filters
-		 * and update the filter menus to 'All'
+		 * Reset list of incidents without filters
 		 */
-		this.resetIncidents = function(){
+		this.resetFilters = function(){
+			
+			// Reset the list of incidents to the original unfiltered list
 			self.incidentList(self.fixedList);
+
+			// Reset the filter dropdowns to "All"
 			self.selectedState('All');
 			self.selectedMonth('All');
+			self.query('');
+
+			// Reset map zoom and centering
 			map.setZoom(5);
 			map.setCenter({lat: 37.856365, lng: -98.341694});
-			this.markers().forEach(function(marker){
-				marker.setMap(map);
+
+			// Display all of the markers by making sure each is associated with the map.
+			this.incidentList().forEach(function(incident){
+				incident.marker.setMap(map);
 			});
+
+			// Close info window in case it's open
 			infoWindow.close();
+		}
+
+		/*
+		 * Create a search query for Google News.
+		 * Combine the custom search terms (e.g. Gun violence) with date and
+		 * location data for a given incident.
+		 * Then run a search.
+		 * @param {object} incident - instance of an Incident.
+		 */
+		this.createSearch = function(incident){
+			this.fixedSearchTerms(incident.location() + ', ' + incident.date());
+			this.searchNews();
 		}
 
 		/*
@@ -290,7 +347,7 @@ var app = (function(){
 		this.filterIncidents = function(){
 			// Reset incidentList to the original complete list.
 			self.incidentList(self.fixedList);	
-			
+
 			var state = self.selectedState(),
 					month = self.selectedMonth();
 
@@ -307,15 +364,21 @@ var app = (function(){
 				}));
 			}
 
-			this.markers().filter(function(marker){
-				if(self.incidentList().indexOf(marker.parent)!=-1){
-					return true;
+			// this.markers().filter(function(marker){
+			// 	if(self.incidentList().indexOf(marker.parent)!=-1){
+			// 		return true;
+			// 	} else {
+			// 		marker.setMap(null);
+			// 	}
+			// });
+
+			this.fixedList.forEach(function(incident){
+				if(self.incidentList().indexOf(incident.marker.parent)!=-1){
+					incident.marker.setMap(map);
 				} else {
-					marker.setMap(null);
+					incident.marker.setMap(null);
 				}
 			});
-			//self.mc.clearMarkers()
-			//initMarkerClusters(newMarkers);
 		}
 
 		/**
@@ -325,16 +388,71 @@ var app = (function(){
 		this.selectedState.subscribe(this.filterIncidents, this);
 		this.selectedMonth.subscribe(this.filterIncidents, this);
 
-		/**
-   * Use MarkerClusterer library to cluster markers
-   * This helps performance when handling large numbers of markers
-   * by only displaying 1 marker for multiple instances that
-   * occur in the same general area.
-   */
-		function initMarkerClusters(markers){
-			var mcOptions = {gridSize: 50, maxZoom: 15};
-		  self.mc = new MarkerClusterer(map, markers, mcOptions);
-		}	
+		/*
+		 * Search Google News
+		 */
+		this.searchNews = function(){
+		  // Create a News Search instance.
+		  this.newsSearch = new google.search.NewsSearch();
+		  // Set searchComplete as the callback function when a search is 
+		  // complete.  The newsSearch object will have results in it.
+		  this.newsSearch.setSearchCompleteCallback(this, this.searchComplete, null);	  
+		  this.newsSearch.execute(this.completeSearch());
+
+		} 
+
+		/*
+		 * Handle a completed Google News search
+		 * Parse results and render them into an info window on the map.
+		 */
+		this.searchComplete = function(){
+
+			// create a shortcult to this.newsSearch
+		  var newsSearch = this.newsSearch;
+
+			// An HTML template which will be populated with incident specific data.
+			var infoTemplate 	= '<h3 class="iw-title">%title%</h3>' +
+													'<div class="iw-timestamp">%timestamp%</div>';
+
+			// A list of news items returned by the search
+			var listItems = '';
+
+			// Update HTML template with correct title and location.
+		  infoTemplate = infoTemplate.replace(/%title%/i, currentIncident.desc() + ' in shooting near ' +currentIncident.location());
+
+		  // Update HTML template with correct date and time info.
+			infoTemplate = infoTemplate.replace(/%timestamp%/i, currentIncident.data['Incident Date']);
+
+			var altSearchInfo = 'Try changing the search terms, "' + this.customSearchTerms() + '," to something else — or look at the source data at the <a href="http://www.gunviolencearchive.org/mass-shooting" class="iw-citation-link">Gun Violence Archive</a>.';
+			
+		  // Check that we got results
+		  if (newsSearch.results && newsSearch.results.length > 0) {
+
+		  	infoTemplate += '<div class="iw-content"><div class="iw-related-stories">News Stories Related To: <span class="iw-search-terms iw-custom-terms">"' + this.customSearchTerms() + '</span>, <span class="iw-search-terms iw-fixed-terms">' + this.fixedSearchTerms() + '"</span></div>' +
+							 '<ul class="news-stories">%list-items%</ul>' +
+							 '<div class="iw-more-information">Don\'t see anything that looks related? ' + altSearchInfo + '</div></div>';
+
+		  	var len = newsSearch.results.length;
+		  	for (var i=1; i<len; i++){
+		  		listItems += '<li><a target="_blank" href="' + newsSearch.results[i].unescapedUrl + '">';
+		  		if (newsSearch.results[i].image && newsSearch.results[i].image.tbUrl){
+		  			listItems += '<img src="' + newsSearch.results[i].image.tbUrl + '">';
+		  		}
+		  		listItems += '<h5 class="iw-headline">' + newsSearch.results[i].titleNoFormatting + '</h5></a>';
+		  	}
+
+		  	infoTemplate = infoTemplate.replace(/%list-items%/i, listItems);
+		  
+		  } else {
+		  	// No search results!
+		  	// Provide some fall-back information:
+		  	infoTemplate += '<div class="iw-content iw-empty"><p>We can\'t find any news stories related to this incident. However, we can tell you that it occured at or near <span class="incident-address">' +  currentIncident.data['Concatenated Address'] + '</span>.</p><p>' + altSearchInfo +'</p></div>';
+		  }
+
+		  // Print information in the info window.
+		  infoWindow.setContent(infoTemplate);
+
+		}
 
 	}
 
@@ -347,61 +465,19 @@ var app = (function(){
 		var getData = $.getJSON( "dev/data/shooting_incidents.json", function() {
 		})
 			.done(function(data){
-				ko.applyBindings(new AppViewModel(data));
+				mapData = data;
+				viewModel = new AppViewModel();
+				ko.applyBindings(viewModel);
 			})
 			.fail(function(msg){
 				console.log('error: ' + msg);
 			});
 	}
 
-	// This code generates a "Raw Searcher" to handle search queries. The Raw 
-	// Searcher requires you to handle and draw the search results manually.
-	google.load('search', '1');
-
-	var newsSearch;
-
-	var infoTemplate = 	'<h2 class="info-heading">%title%</h2>' +
-											'<ul class="news-stories">%list-items%</ul>';
-
-	function searchComplete() {
-		console.dir(currentIncident);
-	  // Check that we got results
-	  if (newsSearch.results && newsSearch.results.length > 0) {
-
-	  	var listItems = '';
-	  	var len = newsSearch.results.length;// > 3 ? 3:newsSearch.results.length;
-	  	for (var i=0; i<len; i++){
-	  		listItems += '<li><a href="' + newsSearch.results[i].unescapedUrl + '">' + newsSearch.results[i].titleNoFormatting + '</a></li>';
-	  	}
-
-	  	var str = infoTemplate.replace(/%title%/i, currentIncident.data['# Killed'] + ' killed and ' + currentIncident.data['# Injured'] + ' injured in shooting near ' + currentIncident.location());
-	  	str = str.replace(/%list-items%/i, listItems);
-	  	infoWindow.setContent(str);
-	  
-	  } else {
-
-	  }
-	}
-
-	function searchNews(searchString){
-	  // Create a News Search instance.
-	  newsSearch = new google.search.NewsSearch();
-	  // Set searchComplete as the callback function when a search is 
-	  // complete.  The newsSearch object will have results in it.
-	  newsSearch.setSearchCompleteCallback(this, searchComplete, null);
-
-	  // Specify search quer(ies)
-	  newsSearch.execute(searchString);
-
-	  // Include the required Google branding
-	  //google.search.Search.getBranding('branding');
-
-	} 
-
 	return {
 		init: function(){
 			loadData();
-			infoWindow = new google.maps.InfoWindow({ maxWidth: 300 });
+			infoWindow = new google.maps.InfoWindow({ maxWidth: 380 });
 		}
 	}
 
@@ -414,10 +490,10 @@ var app = (function(){
 function initMap() {
 	var myLatLng = {lat: 37.856365, lng: -98.341694};
 
-  map = new google.maps.Map(document.getElementById('map'), {
+  var googleMap = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 37.856365, lng: -98.341694},
     zoom: 5
   }); 
   
-  app.init();
+  app.init(googleMap);
 }

@@ -29,14 +29,22 @@
     </div>
     <nav class="filters">
       <div class="selection-wrapper">
-        <label>Filter by Month:</label>
+        <label>Filter Incidents by Month:</label>
         <select data-bind="options: months, value: selectedMonth"></select>
       </div>
       <div class="selection-wrapper">
-        <label>Filter by State:</label>
+        <label>Filter Incidents by State:</label>
         <select data-bind="options: listOfStates, value: selectedState"></select>
       </div>
-      <button class="btn reset-button" data-bind="click: resetIncidents">Reset Filters</button>
+      <div class="selection-wrapper">
+        <label>Filter by location:</label>
+        <input placeholder="Search…" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off">
+      </div>
+      <div class="selection-wrapper">
+        <label>Find news stories related to search term:</label>
+        <input data-bind="value: customSearchTerms">
+      </div>
+      <button class="btn reset-button" data-bind="click: resetFilters">Reset Filters</button>
     </nav>
     <nav class="incident-nav">
       <ul class="incidents-list" data-bind="foreach: incidentList">
@@ -53,11 +61,10 @@
 
   <script src="bower_components/knockout/dist/knockout.js"></script>
   <script src="dev/js/libs/jquery.js"></script>
-  <script src="dev/js/libs/markerClusterer.js"></script>
   <script src="dev/js/main.js"></script>
   <script
      async defer
-     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9_V4fG-umELVwoyKKRm4jQ8XODuwV9MA&callback=initMap">
+     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9_V4fG-umELVwoyKKRm4jQ8XODuwV9MA&callback=app.init">
     </script>
 </body>
 </html>

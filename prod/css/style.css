@@ -369,6 +369,13 @@ img {
 #map {
   height: 100vh; }
 
+a {
+  color: #333;
+  text-decoration: none; }
+
+a:hover {
+  color: #357ae8; }
+
 .sidebar {
   background-color: rgba(255, 255, 255, 0.55);
   position: fixed;
@@ -377,10 +384,10 @@ img {
   bottom: 0;
   overflow-y: scroll;
   transition: all .4s;
-  width: 300px;
+  width: 360px;
   z-index: 99; }
   .sidebar:hover {
-    background-color: rgba(255, 255, 255, 0.8); }
+    background-color: #e7f1d9; }
 
 /********************************
  ** TITLE AREA **
@@ -422,6 +429,13 @@ img {
 label {
   font-size: 15px; }
 
+input {
+  background-color: #fff;
+  font-size: 14px;
+  padding: 5px;
+  margin-top: 6px;
+  width: 100%; }
+
 .selection-wrapper {
   margin-bottom: 8px; }
 
@@ -437,7 +451,7 @@ label {
   padding: 10px 16px 10px 16px;
   transition: background-color .3s; }
   .incident-item:hover {
-    background-color: #fff;
+    background-color: rgba(255, 229, 0, 0.4);
     box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.33); }
   .incident-item.active {
     background-color: #ffe500; }
@@ -458,5 +472,59 @@ label {
 /********************************
  ** INFO WINDOWS **
  ********************************/
-.info-heading {
-  text-transform: capitalize; }
+.iw-title {
+  font-size: 16px;
+  margin-bottom: 6px; }
+
+.iw-timestamp {
+  color: #888;
+  margin-bottom: 10px; }
+
+.iw-related-stories {
+  margin-bottom: 0;
+  font-weight: 400; }
+  .iw-related-stories span {
+    font-style: italic; }
+  .iw-related-stories .iw-custom-terms-info {
+    color: #888; }
+
+.iw-content {
+  color: #555;
+  font-size: 15px;
+  font-family: sans-serif;
+  line-height: 1.35;
+  margin-bottom: 16px; }
+  .iw-content img {
+    float: left;
+    margin: 0 1em 0 0; }
+  .iw-content .incident-address {
+    font-style: italic;
+    font-weight: bold; }
+  .iw-content .iw-citation-link {
+    text-decoration: underline; }
+
+.iw-more-information {
+  clear: both;
+  line-height: 1.25; }
+
+ul.news-stories {
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  background-color: #f0f0f0;
+  list-style: none;
+  padding: 0;
+  margin: 12px 0; }
+  ul.news-stories li {
+    clear: left;
+    overflow: hidden;
+    padding: 6px 12px 6px 6px;
+    margin: 6px 0; }
+  ul.news-stories li:nth-of-type(even) {
+    background-color: white; }
+  ul.news-stories li b {
+    font-weight: 300; }
+  ul.news-stories .iw-headline {
+    font-size: 15px;
+    font-weight: 400;
+    margin: 0 0 0 95px;
+    line-height: 1.2; }
