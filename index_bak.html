@@ -30,24 +30,25 @@
     <nav class="filters requires-data">
       <div class="selection-wrapper">
         <label>Filter Incidents by Month:</label>
-        <select data-bind="options: listOfMonths, value: selectedMonth"></select>
+        <select data-bind="options: months, value: selectedMonth"></select>
       </div>
       <div class="selection-wrapper">
         <label>Filter Incidents by State:</label>
         <select data-bind="options: listOfStates, value: selectedState"></select>
       </div>
       <div class="selection-wrapper">
-        <label>Find by location:</label>
-        <input placeholder="Search..." type="search" data-bind="value: searchQuery, valueUpdate: 'keyup'" autocomplete="off">
+        <label>Filter by location:</label>
+        <input placeholder="Search…" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off">
       </div>
       <div class="selection-wrapper">
         <label>Find news stories related to search term:</label>
+        <input data-bind="value: customSearchTerms">
       </div>
       <button class="btn reset-button" data-bind="click: resetFilters">Reset Filters</button>
     </nav>
     <nav class="incident-nav requires-data">
-      <ul class="incidents-list" data-bind="foreach: visibleIncidents">
-        <li class="incident-item" data-bind="click: $parent.selectIncident">
+      <ul class="incidents-list" data-bind="foreach: incidentData">
+        <li class="incident-item" data-bind="click: $parent.setIncident">
           <h3 class="incident-title" data-bind="text: title"></h3>
           <div class="incident-location" data-bind="text: location"></div>
           <div class="incident-date" data-bind="text: date"></div>
@@ -55,18 +56,12 @@
       </ul>
     </nav>
   </div>
-  
-  <div id="loading">
-    <div class="centered-content">
-      <img src="prod/images/default.svg" alt="loading icon" class='loading-icon'>
-      <div class="loading-message">Loading Google Maps...</div>
-    </div>
-  </div>
-  <div id="map" class="main-map loading"></div>
+
+  <div id="map" class="main-map"></div>
 
   <script src="bower_components/knockout/dist/knockout.js"></script>
   <script src="dev/js/libs/jquery.js"></script>
-  <script src="dev/js/main.js"></script>
+  <script src="dev/js/main_bak.js"></script>
   <script
      async defer
      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9_V4fG-umELVwoyKKRm4jQ8XODuwV9MA&callback=app.init">

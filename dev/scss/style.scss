@@ -4,6 +4,19 @@
 @import 'modules/base';
 @import 'modules/layout';
 
+#loading {
+	background-color: #fff;
+	height: 100vh;
+	display: flex;
+
+	.centered-content {
+		margin: auto;
+		text-align: center;
+
+	}
+}
+
+
 #map {
 	height: 100vh;
 }
@@ -31,6 +44,15 @@ a:hover {
 	&:hover {
 		background-color: #e7f1d9;
 	}
+}
+
+/********************************
+ ** ERROR HANDLING **
+ ********************************/
+
+.data-fail-msg {
+	color: #ca1818;
+	padding: 16px;
 }
 
 /********************************
@@ -109,7 +131,7 @@ input {
 	transition: background-color .3s;
 	
 	&:hover {
-		background-color:rgba(255,229,0,0.4);
+		background-color:#C3D2AF;
 		box-shadow: 1px 2px 3px rgba(0,0,0,0.33);
 	}
 

@@ -366,6 +366,14 @@ html {
 img {
   max-width: 100%; }
 
+#loading {
+  background-color: #fff;
+  height: 100vh;
+  display: flex; }
+  #loading .centered-content {
+    margin: auto;
+    text-align: center; }
+
 #map {
   height: 100vh; }
 
@@ -388,6 +396,13 @@ a:hover {
   z-index: 99; }
   .sidebar:hover {
     background-color: #e7f1d9; }
+
+/********************************
+ ** ERROR HANDLING **
+ ********************************/
+.data-fail-msg {
+  color: #ca1818;
+  padding: 16px; }
 
 /********************************
  ** TITLE AREA **
@@ -451,7 +466,7 @@ input {
   padding: 10px 16px 10px 16px;
   transition: background-color .3s; }
   .incident-item:hover {
-    background-color: rgba(255, 229, 0, 0.4);
+    background-color: #C3D2AF;
     box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.33); }
   .incident-item.active {
     background-color: #ffe500; }
