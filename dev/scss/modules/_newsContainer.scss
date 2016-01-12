@@ -1,0 +1,90 @@
+.nc-title {
+	font-size: 18px;
+	margin: 6px 0 2px;
+}
+
+.nc-location {
+	font-size: 18px;
+	margin-bottom: 8px;
+}
+
+.nc-timestamp {
+	color: #888;
+	margin-bottom: 10px;
+}
+
+.nc-related-stories {
+  margin-bottom: 0;
+  font-weight: 400;
+
+  span {
+  	font-style: italic;
+  }
+
+  .nc-custom-terms {
+  	//background-color: #ffe500;
+  }
+
+  .nc-custom-terms-info {
+  	color: #888;
+  }
+}
+
+.nc-content {
+	color: #555;
+	font-size: 15px;
+	font-family:sans-serif;
+	line-height: 1.35;
+	margin-bottom: 16px;
+
+	img {
+		float: left;
+		margin: 0 1em 0 0;
+	}
+
+	.incident-address {
+		font-style: italic;
+		font-weight: bold;
+	}
+
+	.nc-citation-link {
+		text-decoration: underline;
+	}
+}
+
+.nc-more-information {
+	clear: both;
+	line-height: 1.25;
+}
+
+ul.news-stories {
+	border-bottom: 1px solid #ccc;
+	border-top: 1px solid #ccc;
+	background-color: #f0f0f0;
+	list-style: none;
+	padding: 0;
+	margin: 12px 0;
+
+	li {
+		clear: left;
+		overflow: hidden;
+		padding: 6px 12px 6px 6px;
+		margin: 6px 0;
+	}
+
+	li:nth-of-type(even){
+		background-color:white;
+	}
+	
+	// Remove bold text from text summary
+	li b { 
+		font-weight: 300;
+	}
+
+	.iw-headline {
+		font-size: 15px;
+		font-weight: 400;
+		margin: 0 0 0 95px;
+		line-height: 1.2;
+	}
+}

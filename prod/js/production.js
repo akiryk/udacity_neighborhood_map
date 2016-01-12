@@ -122,6 +122,11 @@ b.nodes():null)return a.a.V(c.cloneNode(!0).childNodes);b=b.text();return a.a.ma
 k||(k=b.text()||"",k=v.template(null,"{{ko_with $item.koBindingContext}}"+k+"{{/ko_with}}"),b.data("precompiled",k));b=[e.$data];e=v.extend({koBindingContext:e},f.templateOptions);e=v.tmpl(k,b,e);e.appendTo(g.createElement("div"));v.fragments={};return e};this.createJavaScriptEvaluatorBlock=function(a){return"{{ko_code ((function() { return "+a+" })()) }}"};this.addTemplate=function(a,b){u.write("<script type='text/html' id='"+a+"'>"+b+"\x3c/script>")};0<a&&(v.tmpl.tag.ko_code={open:"__.push($1 || '');"},
 v.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.vb.prototype=new a.O;var b=new a.vb;0<b.$c&&a.Db(b);a.b("jqueryTmplTemplateEngine",a.vb)})()})})();})();
 
+/*
+ * https://www.fcc.gov/general/census-block-conversions-api
+ * http://www.census.gov/data/developers/geography.html
+ */
+
 var app = (function(){
 
 	'use strict';
@@ -145,6 +150,11 @@ var app = (function(){
 	var stateCoords = [];
 
 	/*
+	 * Array of US Census codes for state and county
+	 */
+	var censusCodes = [];
+
+	/*
 	 * Coords for the center of the map
 	 */
 	var mapCenter = {lat: 37.856365, lng: -98.341694};
@@ -165,114 +175,7 @@ var app = (function(){
 		// Build the Google Map object. Store a reference to it.
 	  this.googleMap = new google.maps.Map(document.getElementById('map'), {
 	    center: mapCenter,
-	    zoom: 5,
-	    styles: [
-	    	{
-	    		"featureType":"landscape",
-	    		"stylers":[
-	    			{
-	    				"hue":"#FFBB00"
-	    			},
-	    			{
-	    				"saturation":43.400000000000006
-	    			},
-	    			{
-	    				"lightness":37.599999999999994
-	    			},
-	    			{
-	    				"gamma":1
-	    			}
-	    		]
-	    	},
-	    	{
-	    		"featureType":"road.highway",
-	    		"stylers":[
-	    			{
-	    				"hue":"#FFC200"
-	    			},
-	    			{
-	    				"saturation":-61.8
-	    			},
-	    			{
-	    				"lightness":45.599999999999994},
-	    			{
-	    				"gamma":1
-	    			}
-	    		]
-	    	},
-  			{
-  				"featureType":"road.arterial",
-  				"stylers":
-  				[
-  					{
-  						"hue":"#FF0300"
-		  			},
-		  			{
-		  				"saturation":-100
-		  			},
-		  			{
-		  				"lightness":51.19999999999999
-		  			},
-		  			{
-		  				"gamma":1
-		  			}
-  				]
-  			},
-  			{
-  				"featureType":"road.local",
-  				"stylers":
-  					[
-  						{
-  							"hue":"#FF0300"
-  						},
-  						{
-  							"saturation":-100
-  						},
-  						{
-  							"lightness":52
-  						},
-  						{
-  							"gamma":1
-  						}
-  					]
-  				},
-  				{
-  					"featureType":"water",
-  					"stylers":
-  						[
-  							{
-  								"hue":"#0078FF"
-  							},
-  							{
-  								"saturation":-13.200000000000003
-  							},
-  							{
-  								"lightness":2.4000000000000057
-  							},
-  							{
-  								"gamma":1
-  							}
-  						]
-  					},
-  					{
-  						"featureType":"poi",
-  						"stylers":
-  							[
-  								{
-  									"hue":"#00FF6A"
-  								},
-  								{
-  									"saturation":-1.0989010989011234
-  								},
-  								{
-  									"lightness":11.200000000000017
-  								},
-  								{
-  									"gamma":1
-  								}
-  							]
-  						}
-  					]
+	    zoom: 5
 	  });
 
 		// A set of all incidents. Not all will necessarily be displayed, depending
@@ -337,7 +240,7 @@ var app = (function(){
 	  this.allIncidents.forEach(function(incident) {
 	    var markerOptions = {
 	      map: self.googleMap,
-	      position: incident.latlang
+	      position: incident.latlong
 	    };
 
     	incident.marker = new google.maps.Marker(markerOptions);
@@ -345,6 +248,13 @@ var app = (function(){
 
   	});
 
+	};
+
+	ViewModel.prototype.getTitleText = function(){
+		var incident = this.currentIncident;
+	 		return '<h2 class="iw-title">' + incident.title + '</h2>' +
+	 		'<div class="iw-location">' + incident.location + '</div>' +
+	 		'<div class="iw-date">' + incident.date + '</div>';
 	};
 
 	/*
@@ -451,6 +361,14 @@ var app = (function(){
 	ViewModel.prototype.onClickMarker = function(incident){
 		this.currentIncident = incident;
 		this.setUpInfoWindow();
+	};
+
+	/*
+	 * Get the currently active incident
+	 * @return {object} - an Incident instance
+	 */
+	ViewModel.prototype.getCurrentIncident = function(){
+		return this.currentIncident;
 	}
 
 	/*
@@ -471,9 +389,12 @@ var app = (function(){
 	 */
 	ViewModel.prototype.setUpInfoWindow = function(){
 		var incident = this.currentIncident;
-    this.infoWindow.setContent(incident.title);
+		var txt = this.getTitleText() + 
+							'<div class="iw-loading-msg">Loading demographic data</div>';
+    this.infoWindow.setContent(txt);
     this.infoWindow.open(this.googleMap, incident.marker);
-    apiInfo.requestNews(incident);
+    //apiInfo.requestNews(incident);
+    apiInfo.initCensusSearch(incident);
 	};
 
 	/*
@@ -481,47 +402,52 @@ var app = (function(){
 	 */
 	ViewModel.prototype.displayNews = function(response){
 
-			// An HTML template which will be populated with incident specific data.
-			var infoTemplate 	= '<h3 class="iw-title">%title%</h3>' +
-													'<div class="iw-timestamp">%timestamp%</div>';
+		$('#map').append('<div class="modal-bg" id="modal-bg"><div id="newsContainer" class="modal"></div></div>');
 
-			// A list of news items returned by the search
-			var listItems = '';
+		// An HTML template which will be populated with incident specific data.
+		var infoTemplate 	= '<h3 class="nc-title">%title%</h3>' +
+												'<div class="nc-timestamp">%timestamp%</div>';
 
-			// Update HTML template with correct title and location.
-		  infoTemplate = infoTemplate.replace(/%title%/i, this.currentIncident.title + ' in shooting near ' + this.currentIncident.city);
+		// A list of news items returned by the search
+		var listItems = '';
 
-		  // Update HTML template with correct date and time info.
-			infoTemplate = infoTemplate.replace(/%timestamp%/i, this.currentIncident.date);
+		// Update HTML template with correct title and location.
+	  infoTemplate = infoTemplate.replace(/%title%/i, this.currentIncident.title + ' in shooting near ' + this.currentIncident.city);
 
-			var altSearchInfo = 'Try looking at the source data at the <a href="http://www.gunviolencearchive.org/mass-shooting" class="iw-citation-link">Gun Violence Archive</a>.';
-			
-		  // Check that we got results
-		  if (response.length > 0) {
+	  // Update HTML template with correct date and time info.
+		infoTemplate = infoTemplate.replace(/%timestamp%/i, this.currentIncident.date);
 
-		  	infoTemplate += '<div class="iw-content"><div class="iw-related-stories">Related News Stories</div>' +
-							 '<ul class="news-stories">%list-items%</ul>' +
-							 '<div class="iw-more-information">Don\'t see anything that looks related? ' + altSearchInfo + '</div></div>';
+		var altSearchInfo = 'Try looking at the source data at the <a href="http://www.gunviolencearchive.org/mass-shooting" class="nc-citation-link">Gun Violence Archive</a>.';
+		
+	  // Check that we got results
+	  if (response.length > 0) {
 
-		  	var len = response.length;
-		  	for (var i=1; i<len; i++){
-		  		listItems += '<li><a target="_blank" href="' + response[i].unescapedUrl + '">';
-		  		if (response[i].image && response[i].image.tbUrl){
-		  			listItems += '<img src="' + response[i].image.tbUrl + '">';
-		  		}
-		  		listItems += '<h5 class="iw-headline">' + response[i].titleNoFormatting + '</h5></a>';
-		  	}
+	  	infoTemplate += '<div class="nc-content"><h1 class="nc-related-stories">Related News Stories</h1>' +
+						 '<ul class="news-stories">%list-items%</ul>' +
+						 '<div class="nc-more-information">Don\'t see anything that looks related? ' + altSearchInfo + '</div></div>';
 
-		  	infoTemplate = infoTemplate.replace(/%list-items%/i, listItems);
-		  
-		  } else {
-		  	// No search results!
-		  	// Provide some fall-back information:
-		  	infoTemplate += '<div class="iw-content iw-empty"><p>We can\'t find any news stories related to this incident. However, we can tell you that it occured at or near <span class="incident-address">' + currentIncident.location + '</span>.</p><p>' + altSearchInfo +'</p></div>';
-		  }
+	  	var len = response.length;
+	  	for (var i=1; i<len; i++){
+	  		listItems += '<li><a target="_blank" href="' + response[i].unescapedUrl + '">';
+	  		if (response[i].image && response[i].image.tbUrl){
+	  			listItems += '<img src="' + response[i].image.tbUrl + '">';
+	  		}
+	  		listItems += '<h5 class="nc-headline">' + response[i].titleNoFormatting + '</h5></a>';
+	  	}
 
-		  // Print information in the info window.
-		  this.infoWindow.setContent(infoTemplate);
+	  	infoTemplate = infoTemplate.replace(/%list-items%/i, listItems);
+	  
+	  } else {
+	  	// No search results!
+	  	// Provide some fall-back information:
+	  	infoTemplate += '<div class="nc-content nc-empty"><p>We can\'t find any news stories related to this incident. However, we can tell you that it occured at or near <span class="incident-address">' + currentIncident.location + '</span>.</p><p>' + altSearchInfo +'</p></div>';
+	  }
+
+	  infoTemplate += '<div class="nc-close" id="nc-close">x</div>';
+
+	  // Print information in the info window.
+	  $('#newsContainer').append(infoTemplate);
+
 	};
 
 
@@ -538,7 +464,7 @@ var app = (function(){
 		this.state = incident['State'];
 		this.month = this.date.split(' ')[0];
 
-		this.latlang = {
+		this.latlong = {
 			lat: incident['latitude'],
 			lng: incident['longitude']
 		};
@@ -579,17 +505,14 @@ var app = (function(){
 	 */
 	 var apiInfo = {
 
-	 	init: function(){
-
-	 	},
-
 	 	newsSearch: {},
 
 	 	/*
 	 	 * Search google news for stories about a shooting incident.
-	 	 * @param {object} incident - a instance of a shooting incident.
 	 	 */
-	 	requestNews: function(incident){
+	 	requestNews: function(){
+
+	 		var incident = shootingViewModel.getCurrentIncident();
 
 	 		var query = 'shooting gunfire ' + incident.location + ' ' + incident.date;
 
@@ -609,15 +532,137 @@ var app = (function(){
 	 	 */
 	 	handleNews: function(){
 	 		shootingViewModel.displayNews(this.newsSearch.results);
+	 	},
+
+	 	/*
+	 	 * Start search by getting correct FIPS codes.
+	 	 */
+	 	initCensusSearch: function(incident){
+	 		this.getFIPS(incident);
+	 	},
+
+	 	/*
+	 	 * Get special census code for county and state
+	 	 * It's necessary to do a Census API search
+	 	 */
+	 	getFIPS: function(incident){
+	 		this.incident = incident;
+	 		var self = this;
+	 		var site = 'http://data.fcc.gov/api/block/find?format=jsonp&latitude=' + incident.latlong.lat + '&longitude=' + incident.latlong.lng;
+	 		$.ajax({
+	 		 	url: site,
+	 		 	dataType: "jsonp"
+	 		 }).done(function(data){
+	 		 		
+	 		 		self.requestCensusData({
+	 					caller: incident,
+	 		 			stateCode: data.County.FIPS.substring(0,2),
+	 		 			countyCode: data.County.FIPS.substring(2)
+	 		 		});
+
+	 		 	})
+	 		 	.fail(function(msg){
+	 		 		//handle error
+	 		 	});
+	 	},
+
+	 	/*
+	 	 * Start a Census API search based on state code and county code
+	 	 * @param {object} data
+	 	 *    - caller: the incident upon which seach is based
+	 	      - stateCode: FIPS state code
+	 	      - countyCode: FIPS county code
+	 	 */
+	 	requestCensusData: function(data){
+	 		var self = this;
+
+	 		var belowPov = 'DP03_0119PE',
+	 				below10k = 'DP03_0076PE',
+	 				from10to15 = 'DP03_0077PE',
+	 				from15to25 = 'DP03_0078PE',
+	 				from25to35 = 'DP03_0079PE',
+	 				from35to50 = 'DP03_0080PE',
+	 				from50to75 = 'DP03_0081PE',
+	 				from75to100 ='DP03_0082PE',
+	 				from100to150 ='DP03_0083PE',
+	 				from150to200 ='DP03_0084PE',
+	 				from200orMore ='DP03_0085PE',
+	 				medianFamIncome = 'DP03_0086E',
+	 				perCapIncome = 'DP03_0088E',
+	 				totalPop = 'DP05_0001E',
+	 				noHealthIns = 'DP03_0099PE';
+
+	 		var county = data.countyCode,
+	 				state = data.stateCode,
+	 				incident = data.caller;
+
+	 		var req = 'http://api.census.gov/data/2014/acs1/profile?get=' + totalPop + ',' +
+	 							belowPov + ',' + perCapIncome + ',' + noHealthIns + ',NAME&for=county:'+county + 
+	 							'&in=state:'+ state+'&key=c8a416af40d283eed8b070b25212fe18f2caba26';
+	 		console.log(req);
+	 		$.getJSON( req )
+	 			.done(function(data){
+	 				if (data !== undefined){
+	 					self.handleCensus(data);
+	 				} else {
+	 					self.handleNoData();
+	 				}
+	 			})
+	 			.fail(function(msg){
+	 				// TODO: handle error state
+	 				console.log(msg);
+	 				self.handleNoData();
+	 			});
+	 	},
+
+	 	handleCensus: function(data){
+	 		var txt = shootingViewModel.getTitleText() +
+	 							'<div class="iw-demo-title">Demographic data for ' + data[1][4] + '</div>' +
+	 							'<div class="iw-row">' +
+	 								'<div class="iw-left-col">Total Population:</div>' + 
+	 								'<div class="iw-right-col">' + utils.numberWithCommas(data[1][0]) + '</div>' +
+	 							'</div>' +
+	 							'<div class="iw-row">' +
+	 								'<div class="iw-left-col">Under Poverty Line:</div>' + 
+	 								'<div class="iw-right-col">' + data[1][1] + '%</div>' +
+	 							'</div>' +
+	 							'<div class="iw-row">' +
+	 								'<div class="iw-left-col">Per Capita Income:</div>' + 
+	 								'<div class="iw-right-col">$' + utils.numberWithCommas(data[1][2]) + '</div>' +
+	 							'</div>' +
+	 							'<div class="iw-row">' +
+	 								'<div class="iw-left-col">Percent Without Health Insurance:</div>' + 
+	 								'<div class="iw-right-col">' + data[1][3] + '%</div>' +
+	 							'</div>' +
+	 							'<div class="iw-citation">Source: U.S. Census</div><div class="iw-more">See related news stories from Google News</div>';
+
+	 		this.renderInfoWindow(txt);
+	 	},
+
+	 	getTitleText: function(){
+	 		return '<h2 class="iw-title">' + this.incident.title + '</h2>' +
+	 		'<div class="iw-location">' + this.incident.location + '</div>' +
+	 		'<div class="iw-date">' +this.incident.date + '</div>';
+	 	},
+
+	 	handleNoData: function(){
+	 		var err = shootingViewModel.getTitleText() + '<div class="iw-error">U.S. Census can\'t find information for this county.</div>';
+	 		this.renderInfoWindow(err);
+	 	},
+
+	 	renderInfoWindow: function(txt){
+	 		shootingViewModel.infoWindow.setContent(txt);
 	 	}
-
-
 	}
 
 	/*
 	 * Some utility functions used by different parts of this app
 	 */
 	var utils = {
+
+		numberWithCommas: function(x) {
+    	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		},
 
 		sortByDate: function(arrayToSort){
 			arrayToSort.sort(function(a,b){
@@ -701,6 +746,24 @@ var app = (function(){
 			});
 	}
 
+	function handleEvents(){
+		$("#map").on('click', function(e){
+			if (e.target.classList.contains('iw-more')){
+				apiInfo.requestNews();
+				return;
+			}
+			if (e.target.classList.contains('nc-close')){
+				$('#modal-bg').remove();
+			}
+		})
+
+		$('#sidebar').on('click', function(e){
+			if( $('#modal-bg').length) {
+				$('#modal-bg').remove();
+			}
+		})
+	}
+
 	/*
 	 * Return an object to app with public methods
 	 */
@@ -709,6 +772,7 @@ var app = (function(){
 		// start the whole thing
 		init: function(){
 			loadData();
+			handleEvents();
 		}
 	}
 

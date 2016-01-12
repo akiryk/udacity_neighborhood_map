@@ -1,0 +1,82 @@
+/********************************
+ ** INFO WINDOWS **
+ ********************************/
+.iw-title {
+	font-size: 18px;
+	margin: 6px 0 2px;
+}
+
+.iw-location {
+	font-size: 18px;
+	margin-bottom: 8px;
+}
+
+.iw-timestamp {
+	color: #888;
+	margin-bottom: 10px;
+}
+
+.iw-demo-title {
+	font-weight: 900;
+	margin: 1em 0;
+}
+
+.iw-row {
+	clear: both;
+	margin-bottom: 4px;
+	overflow: hidden;
+}
+
+.iw-left-col {
+	float: left;
+}
+
+.iw-right-col {
+	float: right;
+	text-align: right;
+}
+
+.iw-citation {
+	border-bottom: 1px solid #ccc;
+  padding-bottom: 6px;
+  margin-top: 8px;
+  clear: both;
+  color: #888;
+  font-style: italic;
+  text-align: right;
+  padding-right: 1px;
+  margin-bottom: 8px;
+}
+
+.iw-loading-msg {
+	width: 280px;
+}
+
+.iw-loading-msg:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0px;
+}
+
+.iw-more {
+	color: #357AE8;
+	&:hover {
+		text-decoration: underline; 
+	}
+}
+
+@keyframes ellipsis {
+  to {
+    width: 20px;    
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 20px;    
+  }
+}

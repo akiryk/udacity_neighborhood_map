@@ -366,23 +366,8 @@ html {
 img {
   max-width: 100%; }
 
-#loading {
-  background-color: #fff;
-  height: 100vh;
-  display: flex; }
-  #loading .centered-content {
-    margin: auto;
-    text-align: center; }
-
 #map {
   height: 100vh; }
-
-a {
-  color: #333;
-  text-decoration: none; }
-
-a:hover {
-  color: #357ae8; }
 
 .sidebar {
   background-color: rgba(255, 255, 255, 0.55);
@@ -398,14 +383,7 @@ a:hover {
     background-color: #e7f1d9; }
 
 /********************************
- ** ERROR HANDLING **
- ********************************/
-.data-fail-msg {
-  color: #ca1818;
-  padding: 16px; }
-
-/********************************
- ** TITLE AREA **
+ ** SIDEBAR TITLE AREA **
  ********************************/
 .title-block {
   background-color: #222;
@@ -436,7 +414,7 @@ a:hover {
     text-decoration: underline; }
 
 /********************************
- ** FILTERS **
+ ** SIDEBAR FILTERS **
  ********************************/
 .filters {
   padding: 0 16px; }
@@ -459,7 +437,7 @@ input {
   border-radius: 5px; }
 
 /********************************
- ** INCIDENT LIST **
+ ** SIDEBAR INCIDENT LIST **
  ********************************/
 .incident-item {
   cursor: pointer;
@@ -488,37 +466,113 @@ input {
  ** INFO WINDOWS **
  ********************************/
 .iw-title {
-  font-size: 16px;
-  margin-bottom: 6px; }
+  font-size: 18px;
+  margin: 6px 0 2px; }
+
+.iw-location {
+  font-size: 18px;
+  margin-bottom: 8px; }
 
 .iw-timestamp {
   color: #888;
   margin-bottom: 10px; }
 
-.iw-related-stories {
+.iw-demo-title {
+  font-weight: 900;
+  margin: 1em 0; }
+
+.iw-row {
+  clear: both;
+  margin-bottom: 4px;
+  overflow: hidden; }
+
+.iw-left-col {
+  float: left; }
+
+.iw-right-col {
+  float: right;
+  text-align: right; }
+
+.iw-citation {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 6px;
+  margin-top: 8px;
+  clear: both;
+  color: #888;
+  font-style: italic;
+  text-align: right;
+  padding-right: 1px;
+  margin-bottom: 8px; }
+
+.iw-loading-msg {
+  width: 280px; }
+
+.iw-loading-msg:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4, end) 900ms infinite;
+  animation: ellipsis steps(4, end) 900ms infinite;
+  content: "\2026";
+  /* ascii code for the ellipsis character */
+  width: 0px; }
+
+.iw-more {
+  color: #357AE8; }
+  .iw-more:hover {
+    text-decoration: underline; }
+
+@keyframes ellipsis {
+  to {
+    width: 20px; } }
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 20px; } }
+
+/********************************
+ ** ERROR HANDLING **
+ ********************************/
+.data-fail-msg {
+  color: #ca1818;
+  padding: 16px; }
+
+.nc-title {
+  font-size: 18px;
+  margin: 6px 0 2px; }
+
+.nc-location {
+  font-size: 18px;
+  margin-bottom: 8px; }
+
+.nc-timestamp {
+  color: #888;
+  margin-bottom: 10px; }
+
+.nc-related-stories {
   margin-bottom: 0;
   font-weight: 400; }
-  .iw-related-stories span {
+  .nc-related-stories span {
     font-style: italic; }
-  .iw-related-stories .iw-custom-terms-info {
+  .nc-related-stories .nc-custom-terms-info {
     color: #888; }
 
-.iw-content {
+.nc-content {
   color: #555;
   font-size: 15px;
   font-family: sans-serif;
   line-height: 1.35;
   margin-bottom: 16px; }
-  .iw-content img {
+  .nc-content img {
     float: left;
     margin: 0 1em 0 0; }
-  .iw-content .incident-address {
+  .nc-content .incident-address {
     font-style: italic;
     font-weight: bold; }
-  .iw-content .iw-citation-link {
+  .nc-content .nc-citation-link {
     text-decoration: underline; }
 
-.iw-more-information {
+.nc-more-information {
   clear: both;
   line-height: 1.25; }
 
@@ -543,3 +597,39 @@ ul.news-stories {
     font-weight: 400;
     margin: 0 0 0 95px;
     line-height: 1.2; }
+
+/*
+ * Modal
+ */
+.modal-bg {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.75); }
+
+.modal {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  position: fixed;
+  left: 392px;
+  right: 32px;
+  top: 32px;
+  bottom: 32px;
+  padding: 2em; }
+
+.nc-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1em;
+  cursor: pointer; }
+
+a {
+  color: #333;
+  text-decoration: none; }
+
+a:hover {
+  color: #357ae8; }
