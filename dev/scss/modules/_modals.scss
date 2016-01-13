@@ -16,18 +16,29 @@
 	border-radius: 5px;
 	box-shadow: 0 0 10px rgba(0,0,0,0.8);
 	position: fixed;
-	left: 392px; // width of sidebar + 10px;
-	right: 32px;
-	top: 32px;
-	bottom: 32px;
-	padding: 2em;
-
+	left: 16px; // width of sidebar + 10px;
+	right: 16px;
+	top: 16px;
+	bottom: 16px;
+	padding: 1em;
+  overflow: scroll;
 }
 
 .nc-close {
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: fixed;
+  top: 2em;
+  right: 2em;
   padding: 1em;
   cursor: pointer;
+}
+
+
+@media screen and (min-width: 52em){
+  .modal {
+    left: 392px; // width of sidebar + 10px;
+    right: 32px;
+    top: 32px;
+    bottom: 32px;
+    padding: 2em;
+  }
 }

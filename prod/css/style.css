@@ -369,11 +369,25 @@ img {
 #map {
   height: 100vh; }
 
+.mobile-nav {
+  background-color: #222;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 2em;
+  padding: 0 1em; }
+
+.sidebar.display {
+  margin-left: 0;
+  width: 100%; }
+
 .sidebar {
+  margin-left: -500px;
   background-color: rgba(255, 255, 255, 0.55);
   position: fixed;
   left: 0;
-  top: 0;
+  top: 30px;
   bottom: 0;
   overflow-y: scroll;
   transition: all .4s;
@@ -462,6 +476,13 @@ input {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.5); }
 
+@media screen and (min-width: 52em) {
+  .mobile-nav {
+    display: none; }
+  .sidebar {
+    margin-left: 0;
+    top: 0; } }
+
 /********************************
  ** INFO WINDOWS **
  ********************************/
@@ -505,7 +526,8 @@ input {
   margin-bottom: 8px; }
 
 .iw-loading-msg {
-  width: 280px; }
+  width: 280px;
+  margin: 8px 0; }
 
 .iw-loading-msg:after {
   overflow: hidden;
@@ -534,8 +556,15 @@ input {
  ** ERROR HANDLING **
  ********************************/
 .data-fail-msg {
+  background: #fff;
   color: #ca1818;
   padding: 16px; }
+
+.iw-error {
+  color: #ca1818;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 6px;
+  margin: 8px 0; }
 
 .nc-title {
   font-size: 18px;
@@ -614,18 +643,27 @@ ul.news-stories {
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
   position: fixed;
-  left: 392px;
-  right: 32px;
-  top: 32px;
-  bottom: 32px;
-  padding: 2em; }
+  left: 16px;
+  right: 16px;
+  top: 16px;
+  bottom: 16px;
+  padding: 1em;
+  overflow: scroll; }
 
 .nc-close {
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: fixed;
+  top: 2em;
+  right: 2em;
   padding: 1em;
   cursor: pointer; }
+
+@media screen and (min-width: 52em) {
+  .modal {
+    left: 392px;
+    right: 32px;
+    top: 32px;
+    bottom: 32px;
+    padding: 2em; } }
 
 a {
   color: #333;

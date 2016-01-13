@@ -420,19 +420,20 @@ var app = (function(){
 		var altSearchInfo = 'Try looking at the source data at the <a href="http://www.gunviolencearchive.org/mass-shooting" class="nc-citation-link">Gun Violence Archive</a>.';
 		
 	  // Check that we got results
-	  if (response.length > 0) {
+	  if (typeof response !=='undefined' && response.length > 0) {
 
 	  	infoTemplate += '<div class="nc-content"><h1 class="nc-related-stories">Related News Stories</h1>' +
 						 '<ul class="news-stories">%list-items%</ul>' +
 						 '<div class="nc-more-information">Don\'t see anything that looks related? ' + altSearchInfo + '</div></div>';
 
 	  	var len = response.length;
-	  	for (var i=1; i<len; i++){
+	  	for (var i=0; i<len; i++){
 	  		listItems += '<li><a target="_blank" href="' + response[i].unescapedUrl + '">';
 	  		if (response[i].image && response[i].image.tbUrl){
 	  			listItems += '<img src="' + response[i].image.tbUrl + '">';
 	  		}
-	  		listItems += '<h5 class="nc-headline">' + response[i].titleNoFormatting + '</h5></a>';
+	  		listItems += '<h4 class="nc-headline">' + response[i].titleNoFormatting + '</h4>';
+	  		listItems += '<p>' + response[i].content + '</p></a>';
 	  	}
 
 	  	infoTemplate = infoTemplate.replace(/%list-items%/i, listItems);
@@ -440,7 +441,7 @@ var app = (function(){
 	  } else {
 	  	// No search results!
 	  	// Provide some fall-back information:
-	  	infoTemplate += '<div class="nc-content nc-empty"><p>We can\'t find any news stories related to this incident. However, we can tell you that it occured at or near <span class="incident-address">' + currentIncident.location + '</span>.</p><p>' + altSearchInfo +'</p></div>';
+	  	infoTemplate += '<div class="nc-content nc-empty"><p>We can\'t find any news stories related to this incident. However, we can tell you that it occured at or near <span class="incident-address">' + this.currentIncident.location + '</span>.</p><p>' + altSearchInfo +'</p></div>';
 	  }
 
 	  infoTemplate += '<div class="nc-close" id="nc-close">x</div>';
@@ -517,18 +518,17 @@ var app = (function(){
 	 		var query = 'shooting gunfire ' + incident.location + ' ' + incident.date;
 
 	 		// Requires that google jsapi be loaded and that Google loads 'search'
-		  this.newsSearch = new google.search.NewsSearch();
+		  this.newsSearch = new google.search.WebSearch();
 
 		  // Set searchComplete as the callback function when a search is 
 		  // complete.  The newsSearch object will have results in it.
 		  this.newsSearch.setSearchCompleteCallback(this, this.handleNews, null);	  
 		  this.newsSearch.execute(query);
-		  //google.search.Search.getBranding('branding');
 
 	 	},
 
 	 	/*
-	 	 * Handle search results from google new API request
+	 	 * Handle search results from google search request
 	 	 */
 	 	handleNews: function(){
 	 		shootingViewModel.displayNews(this.newsSearch.results);
@@ -563,6 +563,8 @@ var app = (function(){
 	 		 	})
 	 		 	.fail(function(msg){
 	 		 		//handle error
+	 		 		console.log('error getting FIPS codes');
+	 		 		self.handleNoData();
 	 		 	});
 	 	},
 
@@ -599,7 +601,7 @@ var app = (function(){
 	 		var req = 'http://api.census.gov/data/2014/acs1/profile?get=' + totalPop + ',' +
 	 							belowPov + ',' + perCapIncome + ',' + noHealthIns + ',NAME&for=county:'+county + 
 	 							'&in=state:'+ state+'&key=c8a416af40d283eed8b070b25212fe18f2caba26';
-	 		console.log(req);
+
 	 		$.getJSON( req )
 	 			.done(function(data){
 	 				if (data !== undefined){
@@ -609,8 +611,6 @@ var app = (function(){
 	 				}
 	 			})
 	 			.fail(function(msg){
-	 				// TODO: handle error state
-	 				console.log(msg);
 	 				self.handleNoData();
 	 			});
 	 	},
@@ -633,9 +633,8 @@ var app = (function(){
 	 							'<div class="iw-row">' +
 	 								'<div class="iw-left-col">Percent Without Health Insurance:</div>' + 
 	 								'<div class="iw-right-col">' + data[1][3] + '%</div>' +
-	 							'</div>' +
-	 							'<div class="iw-citation">Source: U.S. Census</div><div class="iw-more">See related news stories from Google News</div>';
-
+	 							'</div>' + 
+	 							'<div class="iw-citation">Source: U.S. Census</div>' + this.getGoogleNewsLinkText();
 	 		this.renderInfoWindow(txt);
 	 	},
 
@@ -645,8 +644,14 @@ var app = (function(){
 	 		'<div class="iw-date">' +this.incident.date + '</div>';
 	 	},
 
+	 	getGoogleNewsLinkText: function(){
+	 		return '<div class="iw-more">See related news stories from Google News</div>';
+	 	},
+
 	 	handleNoData: function(){
-	 		var err = shootingViewModel.getTitleText() + '<div class="iw-error">U.S. Census can\'t find information for this county.</div>';
+	 		var err = shootingViewModel.getTitleText() + 
+	 			'<div class="iw-error">Uh oh. U.S. Census can\'t find information for this county.</div>' +
+	 			this.getGoogleNewsLinkText();
 	 		this.renderInfoWindow(err);
 	 	},
 
@@ -741,12 +746,12 @@ var app = (function(){
 				// Hide all sections that need data to display correctly
 				$('.requires-data').hide();
 				// Show a message about the problem
-				$('#sidebar').append('<div class="data-fail-msg">Uh oh, we can\'t find the data file!' +
+				$('#sidebar').append('<div class="data-fail-msg">Uh oh, we can\'t load an important data file!' +
 					' Try reloading the page to see if that works.</div>');
 			});
 	}
 
-	function handleEvents(){
+	function initEvents(){
 		$("#map").on('click', function(e){
 			if (e.target.classList.contains('iw-more')){
 				apiInfo.requestNews();
@@ -755,12 +760,16 @@ var app = (function(){
 			if (e.target.classList.contains('nc-close')){
 				$('#modal-bg').remove();
 			}
-		})
+		});
 
 		$('#sidebar').on('click', function(e){
 			if( $('#modal-bg').length) {
 				$('#modal-bg').remove();
 			}
+		});
+
+		$('.mobile-nav').on('click', function(e){
+			$('#sidebar').toggleClass('display');
 		})
 	}
 
@@ -772,7 +781,7 @@ var app = (function(){
 		// start the whole thing
 		init: function(){
 			loadData();
-			handleEvents();
+			initEvents();
 		}
 	}
 

@@ -1,8 +1,27 @@
+.mobile-nav {
+	background-color: #222;
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	height: 2em;
+	padding: 0 1em;	
+}
+
+.sidebar.display {
+	margin-left: 0;
+	width: 100%;
+}
+
 .sidebar {
+	
+	// mobile menu settings
+	margin-left: -500px;
+
 	background-color: rgba(255,255,255,0.55);
 	position: fixed;
 	left: 0;
-	top: 0;
+	top: 30px;
 	bottom: 0;
 	overflow-y: scroll;
 	transition: all .4s;
@@ -113,4 +132,15 @@ input {
 .incident-date {
 	font-size: 14px;
 	color: rgba(0,0,0,0.5);
+}
+
+@media screen and (min-width: 52em){
+	.mobile-nav {
+		display: none;
+	}
+
+	.sidebar {
+		margin-left: 0;
+		top: 0;
+	}
 }
