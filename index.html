@@ -23,40 +23,39 @@
 
 <body>
   <div id="sidebar" class="sidebar">
-    <div class="title-block">
+    <div class="sidebar__title title-block">
       <h2 class="main-title">Incidents of gun violence in the United States, <span class="date-range">February-December, 2015</span></h2>
-      <div class="citation">Data is from the <a href="http://www.gunviolencearchive.org/mass-shooting" class="citation-link">Gun Violence Archive</a></div>
+      <div class="citation">Source: <a href="http://www.gunviolencearchive.org/mass-shooting" class="citation-link" target="_blank">Gun Violence Archive</a> and the <a href="http://www.census.gov/en.html" class="citation-link" target="_blank">U.S. Census</a></div>
     </div>
-    <nav class="filters requires-data">
-      <div class="selection-wrapper">
-        <label>Filter Incidents by Month:</label>
-        <select data-bind="options: listOfMonths, value: selectedMonth"></select>
-      </div>
-      <div class="selection-wrapper">
-        <label>Filter Incidents by State:</label>
-        <select data-bind="options: listOfStates, value: selectedState"></select>
-      </div>
-      <div class="selection-wrapper">
-        <label>Find by location:</label>
-        <input placeholder="Search..." type="search" data-bind="value: searchQuery, valueUpdate: 'keyup'" autocomplete="off">
-      </div>
-      <div class="selection-wrapper">
-        <label>Find news stories related to search term:</label>
-      </div>
-      <button class="btn reset-button" data-bind="click: resetFilters">Reset Filters</button>
-    </nav>
-    <nav class="incident-nav requires-data">
-      <ul class="incidents-list" data-bind="foreach: visibleIncidents">
-        <li class="incident-item" data-bind="click: $parent.selectIncident">
-          <h3 class="incident-title" data-bind="text: title"></h3>
-          <div class="incident-location" data-bind="text: location"></div>
-          <div class="incident-date" data-bind="text: date"></div>
-        </li>
-      </ul>
-    </nav>
-  </div>
+    <div class="sidebar__content">
+      <nav class="filters requires-data">
+        <div class="selection-wrapper">
+          <label>Filter Incidents by Month:</label>
+          <select data-bind="options: listOfMonths, value: selectedMonth"></select>
+        </div>
+        <div class="selection-wrapper">
+          <label>Filter Incidents by State:</label>
+          <select data-bind="options: listOfStates, value: selectedState"></select>
+        </div>
+        <div class="selection-wrapper">
+          <label>Find by location:</label>
+          <input placeholder="Search..." type="search" data-bind="value: searchQuery, valueUpdate: 'keyup'" autocomplete="off">
+        </div>
 
-  <nav class="mobile-nav" id="mobile-nav"><div class="nav-icon">NAV</div></nav>
+        <button id="apply-button" class="btn apply-button">Apply Filters To Map</button>
+        <button class="btn reset-button" data-bind="click: resetFilters">Reset Filters</button>
+      </nav>
+      <nav class="incident-nav requires-data">
+        <ul id="incidents-list" class="incidents-list" data-bind="foreach: visibleIncidents">
+          <li class="incident-item" data-bind="click: $parent.selectIncident">
+            <h3 class="incident-title" data-bind="text: title"></h3>
+            <div class="incident-location" data-bind="text: location"></div>
+            <div class="incident-date" data-bind="text: date"></div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
   
   <div id="loading">
     <div class="centered-content">
@@ -65,6 +64,8 @@
     </div>
   </div>
   <div id="map" class="main-map loading"></div>
+
+  <nav class="mobile-nav" id="mobile-nav"><img class="menu-icon" src="prod/images/menu.svg" alt=""><img class="close-icon" src="prod/images/cancel.svg" alt=""></nav>
 
   <script src="bower_components/knockout/dist/knockout.js"></script>
   <script src="dev/js/libs/jquery.js"></script>

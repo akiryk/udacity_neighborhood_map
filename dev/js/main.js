@@ -279,7 +279,6 @@ var app = (function(){
 	ViewModel.prototype.displayNews = function(response){
 
 		$('#map').append('<div class="modal-bg" id="modal-bg"><div id="newsContainer" class="modal"></div></div>');
-
 		// An HTML template which will be populated with incident specific data.
 		var infoTemplate 	= '<h3 class="nc-title">%title%</h3>' +
 												'<div class="nc-timestamp">%timestamp%</div>';
@@ -320,7 +319,7 @@ var app = (function(){
 	  	infoTemplate += '<div class="nc-content nc-empty"><p>We can\'t find any news stories related to this incident. However, we can tell you that it occured at or near <span class="incident-address">' + this.currentIncident.location + '</span>.</p><p>' + altSearchInfo +'</p></div>';
 	  }
 
-	  infoTemplate += '<div class="nc-close" id="nc-close">x</div>';
+	  infoTemplate += '<div class="nc-close" id="nc-close">Close</div>';
 
 	  // Print information in the info window.
 	  $('#newsContainer').append(infoTemplate);
@@ -634,19 +633,28 @@ var app = (function(){
 				return;
 			}
 			if (e.target.classList.contains('nc-close')){
-				$('#modal-bg').remove();
+				removeModal();
 			}
 		});
 
 		$('#sidebar').on('click', function(e){
 			if( $('#modal-bg').length) {
-				$('#modal-bg').remove();
+				removeModal();
 			}
 		});
 
+		$('#incidents-list, #apply-button').on('click', function(e){
+			$('body').removeClass('display-mobile-nav');
+		});
+
 		$('.mobile-nav').on('click', function(e){
-			$('#sidebar').toggleClass('display');
-		})
+			$('body').toggleClass('display-mobile-nav');
+		});
+
+		function removeModal(){
+			$('#modal-bg').remove();
+		}
+
 	}
 
 	/*

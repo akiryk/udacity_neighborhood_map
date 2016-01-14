@@ -1,3 +1,9 @@
 #map {
 	height: 100vh;
+	transition: all .15s ease-out;
+}
+
+.display-mobile-nav #map {
+	opacity: 0.0;
+	transform: scale(0.95) !important;
 }

@@ -1,0 +1,64 @@
+$bgColor: #000;// #094B67;
+
+body.display-mobile-nav {
+	background-color: $bgColor;
+}
+
+
+.mobile-nav {
+ 	background: #000;
+ 	border: 1px solid rgba(255,255,255,0.8);
+	width: 3em;
+	height: 3em;
+	position: fixed;
+	right: 8px;
+	top: 8px;
+	border-radius: 50px;
+	cursor: pointer;
+	z-index: 99;
+	display: flex;
+}
+
+.mobile-nav:hover {
+	.menu-icon,
+	.close-icon {
+		opacity: 1.0;
+	}	
+}
+
+.menu-icon,
+.close-icon {
+	padding: 14px;
+	position: absolute;
+	left: 0;
+	transition: opacity .2s;
+}
+
+.close-icon {
+	opacity: 0.0;
+	visibility: hidden;
+}
+
+.menu-icon {
+	opacity: 0.7;
+	visibility: visible;
+}
+
+.display-mobile-nav {
+	
+	.close-icon {
+		opacity: 0.7;
+		visibility: visible;
+	}
+
+	.menu-icon {
+		opacity: 0.0;
+		visibility: hidden;
+	}
+}
+
+@media screen and (min-width: 52em){
+	.mobile-nav {
+		display: none;
+	}
+}
