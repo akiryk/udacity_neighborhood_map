@@ -10,11 +10,7 @@ module.exports = function(grunt) {
 
     concat: {
       dist: {
-        src: [
-            'bower_components/knockout/dist/knockout.js',
-            // 'dev/js/libs/*.js',
-            'dev/js/main.js',
-        ],
+        src: [ 'dev/js/libs/jquery.js', 'bower_components/knockout/dist/knockout.js', 'dev/js/main.js'],
         dest: 'prod/js/production.js',
       }
     },
@@ -95,14 +91,12 @@ module.exports = function(grunt) {
       }
     },
     jshint: {
-      files: ['Gruntfile.js','js/*.js'], // array of files to lint
+      files: ['Gruntfile.js','dev/js/main.js'], // array of files to lint
     },
     watch: {
       scripts: {
         files: [
-                'dev/js/libs/*.js',
-                'dev/js/plugins/*.js',
-                'dev/js/*.js',
+                'dev/js/main.js',
                 ],
         tasks: ['concat', 'jshint'],
         options: {
@@ -124,36 +118,6 @@ module.exports = function(grunt) {
         files: ['index.html'],
         options: {
             livereload: true
-        }
-      }
-    },
-    watchForProduction: {
-      scripts: {
-        files: [
-                'dev/js/libs/*.js',
-                'dev/js/plugins/*.js',
-                'dev/js/*.js',
-                ],
-        tasks: ['concatForProduction'],
-        options: {
-            spawn: false,
-            livereload: true
-        },
-      },
-      css: {
-        files: ['dev/scss/**/*.scss',
-                'dev/scss/*.scss',
-                ],
-        tasks: [ 'sass' ],
-        options: {
-          spawn: false,
-          livereload: true
-        }
-      },
-      html: {
-        files: ['index.html'],
-        options: {
-            livereload: false
         }
       }
     }
@@ -181,6 +145,8 @@ module.exports = function(grunt) {
   grunt.registerTask('inlineJSCSS', ['inline']);
 
   grunt.registerTask('hint', ['jshint']);
+
+  grunt.registerTask('condense', ['uglify']);
 
   grunt.registerTask('resize', [
     'responsive_images',

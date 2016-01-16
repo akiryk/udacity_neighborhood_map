@@ -37,8 +37,6 @@
 }
 
 .iw-citation {
-	border-bottom: 1px solid #ccc;
-  padding-bottom: 6px;
   margin-top: 8px;
   clear: both;
   color: #888;
@@ -64,6 +62,9 @@
 }
 
 .iw-more {
+  border-top: 1px solid #ccc;
+  cursor: pointer;
+  padding-top: 6px;
 	color: #357AE8;
 	&:hover {
 		text-decoration: underline; 

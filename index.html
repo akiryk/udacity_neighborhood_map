@@ -4,16 +4,6 @@
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-  <!--
-  live reload script
-  (comment this out) build:remove
-  <script src="http://localhost:35729/livereload.js"></script>
-  (comment this out) /build
-  -->
-
-  <!-- build:remove -->
-    <script src="http://localhost:35729/livereload.js"></script>
-  <!-- /build -->
   <script src="https://www.google.com/jsapi"></script>
   <title>neighborhood</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -43,7 +33,7 @@
         </div>
 
         <button id="apply-button" class="btn apply-button">Apply Filters To Map</button>
-        <button class="btn reset-button" data-bind="click: resetFilters">Reset Filters</button>
+        <button id="reset-button" class="btn reset-button" data-bind="click: resetFilters">Reset Filters</button>
       </nav>
       <nav class="incident-nav requires-data">
         <ul id="incidents-list" class="incidents-list" data-bind="foreach: visibleIncidents">
@@ -67,12 +57,13 @@
 
   <nav class="mobile-nav" id="mobile-nav"><img class="menu-icon" src="prod/images/menu.svg" alt=""><img class="close-icon" src="prod/images/cancel.svg" alt=""></nav>
 
-  <script src="bower_components/knockout/dist/knockout.js"></script>
-  <script src="dev/js/libs/jquery.js"></script>
-  <script src="dev/js/main.js"></script>
+  <script src="prod/js/production.min.js"></script>
   <script
      async defer
-     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9_V4fG-umELVwoyKKRm4jQ8XODuwV9MA&callback=app.init">
+     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9_V4fG-umELVwoyKKRm4jQ8XODuwV9MA&callback=app.init&sensor=false">
     </script>
+  <script>
+    google.load('search', '1', {"callback": app.initSearch} ); // load google search API
+  </script>
 </body>
 </html>

@@ -1,44 +1,34 @@
-/*
- * https://www.fcc.gov/general/census-block-conversions-api
- * http://www.census.gov/data/developers/geography.html
- */
-
 var app = (function(){
 
 	'use strict';
 
 	/*
-	 * Instance of a ViewModel
-	 * Gives a hook for accessing the ViewModel from other objects
+	 * Declare a variable that will be an instance of a Knockout.js ViewModel.
 	 */
 	var shootingViewModel;
 
 	/*
-	 * Data array
-	 * Will be populated with data from an external JSON file
-	 * See loadData() function below
+	 * Array to be populated with data from an external JSON file
+	 * with data about shooting incidents in the U.S. in 2015.
 	 */
 	var incidentData = [];
 
 	/* 
-	 * An array of states with their coordinates
+	 * An array of states with their coordinates that will be used to 
+	 * center the map when users filter data by state.
 	 */
 	var stateCoords = [];
 
 	/*
-	 * Array of US Census codes for state and county
-	 */
-	var censusCodes = [];
-
-	/*
-	 * Coords for the center of the map
+	 * Default coords for the center of the map (somewhere in Kansas)
 	 */
 	var mapCenter = {lat: 37.856365, lng: -98.341694};
 
 	/*
-	 * load the Google search module with google.load(module, version)
+	 * Flag when Google Search API is loaded and ready based on when search 
+	 * loads on index.html. This will trigger a callback to app.initSearch.
 	 */
-	google.load('search', '1');
+	var searchReady = false;
 
 	/*
 	 * Knockout ViewModel
@@ -48,34 +38,32 @@ var app = (function(){
 
 		var self = this;
 
-		// Build the Google Map object. Store a reference to it.
+		// Build the Google Map object and store a reference to it.
 	  this.googleMap = new google.maps.Map(document.getElementById('map'), {
 	    center: mapCenter,
 	    zoom: 5
 	  });
 
-		// A set of all incidents. Not all will necessarily be displayed, depending
-		// on how user filters the data.
+		// A set of all shooting incidents.
 		this.allIncidents = [];
 
-		// A set of incidents that will display on the page based on how user
+		// A set of all incidents that will display based on how user
 		// filters the data.
 		this.visibleIncidents = ko.observableArray([]);
 
-		// Array of states that are listed in data and will be listed
-		// in the dropdown select menu.
-	  this.listOfStates = [];
-
+	  // Google Maps InfoWindow reference.
 	  this.infoWindow = new google.maps.InfoWindow({ maxWidth: 380 });
 
-	  /*
-	 	 * Watch the list of incidents and keep track of which has been
-	 	 * selected by the user.
-	 	 */
-		this.selectedIncident = ko.observable();
+	  // States to be listed in <select> menu in filters. Not *all* states, 
+		// only the states represented in incident data.
+	  this.listOfStates = [];
 
 	  // Array of monthds that will be listed in select menu dropdown.
 	  this.listOfMonths = ['All', 'February', 'March', 'April','May','June','July','August','September','October','November','December'];
+
+	  // Watch the list of incidents and keep track of which has been
+	 	// selected by the user.
+		this.selectedIncident = ko.observable();
 
 		// Make collection of all incidents
 	  incidentData.forEach(function(incident){
@@ -91,9 +79,7 @@ var app = (function(){
 
 	  });
 
-	  /*
-	   * Sort states in the <select> menu and add 'All' to <options>
-	   */
+	  // Sort states in the <select> menu and add 'All' to <options>
 	  this.listOfStates.sort();
 	  this.listOfStates.unshift('All');
 
@@ -102,17 +88,21 @@ var app = (function(){
 	  this.selectedState = ko.observable('All');
 	  this.selectedState.subscribe(this.selectState.bind(this));
 
+	  // Sort months in the <select> menu and add 'All' to <options>
 	  this.selectedMonth = ko.observable('All');
 		this.selectedMonth.subscribe(this.selectMonth.bind(this));
 
+		// Populate the array of incidents to be displayed, default to
+		// displaying all of them.
 	  this.allIncidents.forEach(function(incident){
 	  	self.visibleIncidents.push(incident);
-	  })
+	  });
 
+	  // Bind search input (users can enter text to filter incidents by location)
 	  this.searchQuery = ko.observable(''); 
 	  this.searchQuery.subscribe(this.applyFilters.bind(this));
 
-	  // Make markers
+	  // Make map markers for each incident.
 	  this.allIncidents.forEach(function(incident) {
 	    var markerOptions = {
 	      map: self.googleMap,
@@ -126,15 +116,9 @@ var app = (function(){
 
 	};
 
-	ViewModel.prototype.getTitleText = function(){
-		var incident = this.currentIncident;
-	 		return '<h2 class="iw-title">' + incident.title + '</h2>' +
-	 		'<div class="iw-location">' + incident.location + '</div>' +
-	 		'<div class="iw-date">' + incident.date + '</div>';
-	};
-
 	/*
-	 * Filter the visible incidents by state, month, and search query.
+	 * Filter the visible incidents by state, month, and search query. This will be
+	 * called when user enters text in search input, changes a state, or changes a month.
 	 * @param {string} value - The state, month, or search query
 	 */
 	ViewModel.prototype.applyFilters = function(value){
@@ -149,21 +133,21 @@ var app = (function(){
 				query = this.searchQuery();
 
 		if (state.toLowerCase() !== 'all'){
-			// Filter out all incidents that don't match the state name.
+			// A state is selected, so filter for only those that match it.
 			this.visibleIncidents(this.visibleIncidents().filter(function(incident){
 				return incident.state == state;
 			}));
 		}
 
 		if (month.toLowerCase() !== 'all'){
-			// Filter out all incidents that don't match the state name.
+			// A month is selected, so filter for only those that match it.
 			this.visibleIncidents(this.visibleIncidents().filter(function(incident){
 				return incident.month == month;
 			}));
 		}
 
 		if (query !== ''){
-			// Filter out all incidents that don't match the state name.
+			//Filter out all incidents that don't match the query string
 			this.visibleIncidents(this.visibleIncidents().filter(function(incident){
 				return incident.location.toLowerCase().indexOf(value.toLowerCase()) >= 0;
 			}));
@@ -194,7 +178,7 @@ var app = (function(){
 				break;
 			}
 		}
-	}
+	};
 
 	/*
 	 * Select a month from <select> menu
@@ -203,12 +187,12 @@ var app = (function(){
 	ViewModel.prototype.selectMonth = function(month){
 		this.applyFilters();
 		utils.sortByDate(this.visibleIncidents);
-	}
+	};
 
 	/*
 	 * Reset filters to initial state.
 	 * Empty the search field input and reset the filter dropdowns.
-	 * Set all incidents visible and re-render all location markers.
+	 * Make all incidents visible and re-render all location markers.
 	 */
 	ViewModel.prototype.resetFilters = function(){
 		
@@ -222,9 +206,11 @@ var app = (function(){
 		this.googleMap.setZoom(5);
 
 		this.allIncidents.forEach(function(incident){
-			// self.visibleIncidents.push(incident);
 			incident.marker.setVisible(true);
 		});
+
+		// stop marker from bouncing
+		this.currentIncident.marker.setAnimation(null);
 
 		// Unselect selected incident from sidebar
 		$(this.selectedIncident()).removeClass('active');
@@ -234,6 +220,10 @@ var app = (function(){
 
 	};
 
+	/*
+	 * Handle map marker click event
+	 * @param {object} incident - a visible shooting incident
+	 */
 	ViewModel.prototype.onClickMarker = function(incident){
 		this.currentIncident = incident;
 		this.setUpInfoWindow();
@@ -245,10 +235,12 @@ var app = (function(){
 	 */
 	ViewModel.prototype.getCurrentIncident = function(){
 		return this.currentIncident;
-	}
+	};
 
 	/*
 	 * Select an incident from list in sidebar
+	 * @param {object} incident - a shooting incident from observable array
+	 * @param {object} evt - the click event
 	 */
 	ViewModel.prototype.selectIncident = function(incident, evt){
 		var self = shootingViewModel;
@@ -261,7 +253,8 @@ var app = (function(){
 	};
 
   /*
-	 * Select an incident from list in sidebar
+	 * Display InfoWindow with information about selected incident
+	 * Display basic information and start Census API call for further data.
 	 */
 	ViewModel.prototype.setUpInfoWindow = function(){
 		var incident = this.currentIncident;
@@ -274,7 +267,20 @@ var app = (function(){
 	};
 
 	/*
-	 * Select an incident from list in sidebar
+	 * InfoWindow Title Text
+	 * @return {string} - Title, location, and date of incident
+	 */
+	ViewModel.prototype.getTitleText = function(){
+		var incident = this.currentIncident;
+ 		return '<h2 class="iw-title">' + incident.title + '</h2>' +
+ 		'<div class="iw-location">' + incident.location + '</div>' +
+ 		'<div class="iw-date">' + incident.date + '</div>';
+	};
+
+	/*
+	 * Display a list of news stories related to a given incident 
+	 * Use Google News API to find stories based on incident title, date, and location. 
+	 * @param {object} response - the response object from Google News
 	 */
 	ViewModel.prototype.displayNews = function(response){
 
@@ -328,7 +334,8 @@ var app = (function(){
 
 
 	/*
-	 * A single gun-shooting incident with location data
+	 * A single gun-shooting incident
+	 * @param {object} incident - Data about location, date, and # injured and killed.
 	 */
 	var Incident = function(incident){
 		
@@ -344,27 +351,32 @@ var app = (function(){
 			lat: incident['latitude'],
 			lng: incident['longitude']
 		};
-		
 
-    // Save a reference to the Places' map marker after building the marker
+    // Save a reference to the map marker. It will be set in ViewModel after incident is created.
     this.marker = null;
 
 		function getTitle(){
-			if (incident['# Killed']==0){
+			if (incident['# Killed'] === 0){
 				return incident['# Injured'] + ' Injured';
-			} else if (incidentData['# Injured'] == 0){
+			} else if (incident['# Injured'] === 0){
 				return incident['# Killed'] + ' Killed';
 			} else {
 				return incident['# Killed'] + ' Killed and ' + incident['# Injured'] + ' Injured';
 			}
 		}
-	}
+	};
 
+	/* 
+	 * Google Marker click event 
+	 */
 	Incident.prototype.onClickMarker = function(){
 		shootingViewModel.onClickMarker(this);
 		this.zoomToMarker();
 	};
 
+	/*
+	 * Zoom map to marker
+	 */
 	Incident.prototype.zoomToMarker = function(){
 		var map = shootingViewModel.googleMap,
 				marker = this.marker;
@@ -380,34 +392,6 @@ var app = (function(){
 	 * Handle API calls to populate infoWindow with information
 	 */
 	 var apiInfo = {
-
-	 	newsSearch: {},
-
-	 	/*
-	 	 * Search google news for stories about a shooting incident.
-	 	 */
-	 	requestNews: function(){
-
-	 		var incident = shootingViewModel.getCurrentIncident();
-
-	 		var query = 'shooting gunfire ' + incident.location + ' ' + incident.date;
-
-	 		// Requires that google jsapi be loaded and that Google loads 'search'
-		  this.newsSearch = new google.search.WebSearch();
-
-		  // Set searchComplete as the callback function when a search is 
-		  // complete.  The newsSearch object will have results in it.
-		  this.newsSearch.setSearchCompleteCallback(this, this.handleNews, null);	  
-		  this.newsSearch.execute(query);
-
-	 	},
-
-	 	/*
-	 	 * Handle search results from google search request
-	 	 */
-	 	handleNews: function(){
-	 		shootingViewModel.displayNews(this.newsSearch.results);
-	 	},
 
 	 	/*
 	 	 * Start search by getting correct FIPS codes.
@@ -430,7 +414,6 @@ var app = (function(){
 	 		 }).done(function(data){
 	 		 		
 	 		 		self.requestCensusData({
-	 					caller: incident,
 	 		 			stateCode: data.County.FIPS.substring(0,2),
 	 		 			countyCode: data.County.FIPS.substring(2)
 	 		 		});
@@ -453,25 +436,28 @@ var app = (function(){
 	 	requestCensusData: function(data){
 	 		var self = this;
 
+	 		// reference a few key Census search codes
+	 		// Find more codes here: http://api.census.gov/data/2014/acs1/profile/variables.html
 	 		var belowPov = 'DP03_0119PE',
-	 				below10k = 'DP03_0076PE',
-	 				from10to15 = 'DP03_0077PE',
-	 				from15to25 = 'DP03_0078PE',
-	 				from25to35 = 'DP03_0079PE',
-	 				from35to50 = 'DP03_0080PE',
-	 				from50to75 = 'DP03_0081PE',
-	 				from75to100 ='DP03_0082PE',
-	 				from100to150 ='DP03_0083PE',
-	 				from150to200 ='DP03_0084PE',
-	 				from200orMore ='DP03_0085PE',
-	 				medianFamIncome = 'DP03_0086E',
 	 				perCapIncome = 'DP03_0088E',
 	 				totalPop = 'DP05_0001E',
 	 				noHealthIns = 'DP03_0099PE';
 
+	 		// Other Census search codes to use:
+	 			 	// below10k = 'DP03_0076PE',
+	 				// from10to15 = 'DP03_0077PE',
+	 				// from15to25 = 'DP03_0078PE',
+	 				// from25to35 = 'DP03_0079PE',
+	 				// from35to50 = 'DP03_0080PE',
+	 				// from50to75 = 'DP03_0081PE',
+	 				// from75to100 ='DP03_0082PE',
+	 				// from100to150 ='DP03_0083PE',
+	 				// from150to200 ='DP03_0084PE',
+	 				// from200orMore ='DP03_0085PE',
+	 				// medianFamIncome = 'DP03_0086E',
+
 	 		var county = data.countyCode,
-	 				state = data.stateCode,
-	 				incident = data.caller;
+	 				state = data.stateCode;
 
 	 		var req = 'http://api.census.gov/data/2014/acs1/profile?get=' + totalPop + ',' +
 	 							belowPov + ',' + perCapIncome + ',' + noHealthIns + ',NAME&for=county:'+county + 
@@ -490,6 +476,11 @@ var app = (function(){
 	 			});
 	 	},
 
+	 	/*
+	 	 * Display Census data once it is ready
+	 	 * @param {object} data -- the Census API results
+	 	 *     Search results come in a multi-dimensional 
+	 	 */
 	 	handleCensus: function(data){
 	 		var txt = shootingViewModel.getTitleText() +
 	 							'<div class="iw-demo-title">Demographic data for ' + data[1][4] + '</div>' +
@@ -513,16 +504,22 @@ var app = (function(){
 	 		this.renderInfoWindow(txt);
 	 	},
 
-	 	getTitleText: function(){
-	 		return '<h2 class="iw-title">' + this.incident.title + '</h2>' +
-	 		'<div class="iw-location">' + this.incident.location + '</div>' +
-	 		'<div class="iw-date">' +this.incident.date + '</div>';
-	 	},
-
+	 	/*
+	 	 * If Google Search is ready, display link to run search query
+	 	 */
 	 	getGoogleNewsLinkText: function(){
-	 		return '<div class="iw-more">See related news stories from Google News</div>';
+	 		var txt = '';
+	 		
+	 		if (searchReady){
+	 			txt = '<div class="iw-more">See related news stories from Google News</div>';
+	 		}
+
+	 		return txt;
 	 	},
 
+	 	/*
+	 	 * Display a message when Census API doesn't return useful or any data
+	 	 */
 	 	handleNoData: function(){
 	 		var err = shootingViewModel.getTitleText() + 
 	 			'<div class="iw-error">Uh oh. U.S. Census can\'t find information for this county.</div>' +
@@ -530,10 +527,44 @@ var app = (function(){
 	 		this.renderInfoWindow(err);
 	 	},
 
+	 	/*
+	 	 * Show InfoWindow with all of the text from APIs.
+	 	 */
 	 	renderInfoWindow: function(txt){
 	 		shootingViewModel.infoWindow.setContent(txt);
-	 	}
-	}
+	 	},
+
+	 	/* 
+	 	 * Reference to a Google News Search object
+	 	 */
+	 	newsSearch: {},
+
+	 	/*
+	 	 * Search google news for stories about a shooting incident.
+	 	 */
+	 	requestNews: function(){			
+
+	 		var incident = shootingViewModel.getCurrentIncident();
+
+	 		var query = 'shooting gunfire ' + incident.location + ' ' + incident.date;
+
+	 		// Requires that google jsapi be loaded and that Google loads 'search'
+		  this.newsSearch = new google.search.WebSearch();
+
+		  // Set searchComplete as the callback function when a search is 
+		  // complete.  The newsSearch object will have results in it.
+		  this.newsSearch.setSearchCompleteCallback(this, this.handleNews, null);	  
+		  this.newsSearch.execute(query);
+
+	 	},
+
+	 	/*
+	 	 * Handle search results from google search request
+	 	 */
+	 	handleNews: function(){
+	 		shootingViewModel.displayNews(this.newsSearch.results);
+	 	},
+	};
 
 	/*
 	 * Some utility functions used by different parts of this app
@@ -587,7 +618,7 @@ var app = (function(){
 		  });
 		}
 
-	}
+	};
 
 	/** 
 	 * Load json data necessary for the map.
@@ -643,7 +674,7 @@ var app = (function(){
 			}
 		});
 
-		$('#incidents-list, #apply-button').on('click', function(e){
+		$('#incidents-list, #apply-button, #reset-button').on('click', function(e){
 			$('body').removeClass('display-mobile-nav');
 		});
 
@@ -666,7 +697,11 @@ var app = (function(){
 		init: function(){
 			loadData();
 			initEvents();
+		},
+
+		initSearch: function(){
+			searchReady = true;
 		}
-	}
+	};
 
 })();

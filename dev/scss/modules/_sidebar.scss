@@ -9,6 +9,12 @@ input[type="search"] {
 	width: 95%;
 }
 
+.sidebar__title {
+	height: 100px;
+	position: relative;
+	z-index: 1;
+}
+
 .sidebar__content {
 	transform: scale(0.9);
 	opacity: 0;
@@ -150,12 +156,18 @@ input {
 		left: 0;
 		right: 0;
 		width: 360px;
+		overflow: scroll;
 		z-index: 99;
+	}
+
+	.sidebar__title {
+		height: auto;
 	}
 
 	.sidebar__content {
 		background-color: rgba(255,255,255,0.55);
 		opacity:1.0;
+		overflow-y: initial;
 		padding-top: 1em;
 		transform: scale(1);
 		visibility: visible;
