@@ -9958,12 +9958,12 @@ var app = (function(){
 
 		$.when(
 		  // Get data on shooting incidents
-		  $.getJSON( "dev/data/shooting_incidents.json", function(data){
+		  $.getJSON( "data/shooting_incidents.json", function(data){
 		  	incidentData = data;
 		  }),
 
 		  // Get data about states (for centering map)
-		  $.getJSON("dev/data/state_capitols.json", function(data) {
+		  $.getJSON("data/state_capitols.json", function(data) {
 		    stateCoords = data;
 		  })
 

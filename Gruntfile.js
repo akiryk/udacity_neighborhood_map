@@ -10,7 +10,7 @@ module.exports = function(grunt) {
 
     concat: {
       dist: {
-        src: [ 'dev/js/libs/jquery.js', 'bower_components/knockout/dist/knockout.js', 'dev/js/main.js'],
+        src: [ 'dev/js/libs/jquery.js', 'dev/js/libs/knockout.js', 'dev/js/main.js'],
         dest: 'prod/js/production.js',
       }
     },
