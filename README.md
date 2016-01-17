@@ -2,7 +2,15 @@
 
 
 ###What it does
-An application built with knockout.js that displays a map with data about shooting incidents in the United States in 2015, based on data from the [http://www.gunviolencearchive.org/mass-shooting](gun violence archive) and from the U.S. Census API. Users can see the distribution of shooting events across the country by looking at markers on the map. Clicking on a marker will reveal data about that event. 
+An application built with knockout.js that displays a map with data about shooting incidents in the United States in 2015, based on data from the [http://www.gunviolencearchive.org/mass-shooting](gun violence archive) and from the U.S. Census API. Key functionality of this map includes:
+* Displays the distribution of shooting events across the U.S. 
+* Display incidents from a specified month using Knockout.js bindings
+* Display incidents from a specified state using Knockout.js bindings (map zooms to specified state)
+* Filter incidents by location (city, county, state) using text input field
+* Users can reset filters and map to original settings with 'Reset Filters' button
+* Users can see event details in an Info Window by clicking on a map marker or by clicking on an incident in the list of incidents in sidebar (or in mobile navigation if on a small screen).
+* Info Windows display demographic date from U.S. Census. If data for a given location isn't available, window shows a fallback message
+* Info Windows also display link to news stories related to the event by searching Google News for terms related to the event (e.g. 'Shooting near Montgomery, Alabama, May 24, 2015'). Since Google News search is officially deprecated, this link only displays if Google Search API responds. That is, it's a useful enhancement when it works (which is currently does).
 
 ###How to run the app locally
 1. Clone it onto your machine: `git clone https://github.com/akiryk/udacity_neighborhood_map.git`
