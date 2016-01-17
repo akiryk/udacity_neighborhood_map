@@ -1,6 +1,5 @@
 ##Neighborhood Map
 
-
 ###What it does
 An application built with knockout.js that displays a map with data about shooting incidents in the United States in 2015, based on data from the [http://www.gunviolencearchive.org/mass-shooting](gun violence archive) and from the U.S. Census API. Key functionality of this map includes:
 * Displays the distribution of shooting events across the U.S. 
@@ -18,7 +17,7 @@ An application built with knockout.js that displays a map with data about shooti
 3. cd into the udacity_neighborhood_map directory
 4. Install grunt modules.
 5. Run `grunt` from command line to start a local server at http://localhost:8000
-6. Go to localhost:8000 to view map.
+6. Go to localhost:8000/prod to view production version of map.
 
 ###Using the filters
 There are three ways to filter the data.
