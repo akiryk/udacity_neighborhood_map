@@ -18,9 +18,9 @@
 	position: fixed;
 	left: 16px; // width of sidebar + 10px;
 	right: 16px;
-	top: 116px;
+	top: 16px;
 	bottom: 16px;
-	padding: 3em 1em 1em;
+	padding: 1em;
   overflow: scroll;
 }
 
@@ -31,7 +31,7 @@
   background: #fff;
   padding: 5px;
   border-radius: 5px;
-  top: 8em;
+  top: 2em;
   box-shadow: 0 0 3px rgba(0,0,0,0.25);
 }
 

@@ -43,4 +43,4 @@ To get this code, go to: [http://api.census.gov/data/2014/acs1/profile/variables
 
 Last, piece the request together with comma-delimited codes:
 
-`http://api.census.gov/data/2014/acs1/profile?get=param1,param2,param3,NAME&for=county:COUNTYCODE&in=state:STATECODE&key=API_KEY`
+    http://api.census.gov/data/2014/acs1/profile?get=param1,param2,param3,NAME&for=county:COUNTYCODE&in=state:STATECODE&key=API_KEY
