@@ -11,7 +11,6 @@ input[type="search"] {
 }
 
 .sidebar__title {
-	height: 100px;
 	position: relative;
 	z-index: 1;
 }
@@ -157,8 +156,12 @@ input {
 		left: 0;
 		right: 0;
 		width: 360px;
-		overflow: scroll;
+		overflow: auto;
 		z-index: 99;
+
+		&:hover {
+			background-color: #fff;
+		}
 	}
 
 	.sidebar__title {
@@ -172,10 +175,6 @@ input {
 		transform: scale(1);
 		visibility: visible;
 		position: static;
-
-		&:hover {
-			background-color: #fff;
-		}
 	}
 
 	.title-block {

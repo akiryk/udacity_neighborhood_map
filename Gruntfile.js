@@ -64,7 +64,7 @@ module.exports = function(grunt) {
     sass: {                              // Task
       dist: {                            // Target
         options: {                       // Target options
-          style: 'expanded'
+          outputStyle: 'compressed'
         },
         files: {                         // Dictionary of files
           'prod/css/style.css': 'dev/scss/style.scss',

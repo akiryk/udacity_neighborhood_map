@@ -38,6 +38,7 @@
 .nc-title {
 	font-size: 18px;
 	margin: 6px 0 2px;
+	padding-right: 3em;
 }
 
 .nc-location {
@@ -141,5 +142,9 @@ ul.news-stories {
 	.nc-close {
     right: 3em;
     top: 3em;
+	}
+
+	.nc-title {
+		padding-right: 0;
 	}
 }

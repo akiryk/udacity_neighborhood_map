@@ -1,9 +1,5 @@
 #map {
-	position: absolute !important;
-	top: 100px; // to accommodate the sidebar title area
-	bottom: 0;
-	left: 0;
-	right: 0;
+	height: 100vh;
 	transition: all .15s ease-out;
 }
 
