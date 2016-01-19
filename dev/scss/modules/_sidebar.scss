@@ -11,7 +11,8 @@ input[type="search"] {
 }
 
 .sidebar__title {
-	position: relative;
+	position: fixed;
+	width: 100vw;
 	z-index: 1;
 }
 
@@ -165,7 +166,9 @@ input {
 	}
 
 	.sidebar__title {
+		position: relative;
 		height: auto;
+		width: auto;
 	}
 
 	.sidebar__content {

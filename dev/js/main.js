@@ -52,7 +52,9 @@ var app = (function(){
 		this.visibleIncidents = ko.observableArray([]);
 
 	  // Google Maps InfoWindow reference.
-	  this.infoWindow = new google.maps.InfoWindow({ maxWidth: 380 });
+	  this.infoWindow = new google.maps.InfoWindow({ 
+	  	maxWidth: 380
+	  });
 
 	  // States to be listed in <select> menu in filters. Not *all* states, 
 		// only the states represented in incident data.
