@@ -11,7 +11,7 @@ module.exports = function(grunt) {
     concat: {
       dist: {
         src: [ 'dev/js/libs/jquery.js', 'dev/js/libs/knockout.js', 'dev/js/main.js'],
-        dest: 'prod/js/production.js',
+        dest: 'docs/js/production.js',
       }
     },
     connect: {
@@ -44,14 +44,14 @@ module.exports = function(grunt) {
           expand: true,
           src: ['images/**.{jpg,gif,png}'],
           cwd: 'dev/', // start images should be in dev/images
-          dest: 'prod/' // end images should be in prod/images
+          dest: 'docs/' // end images should be in docs/images
         }]
       }
     },
     uglify: {
       build: {
-        src: 'prod/js/production.js',
-        dest: 'prod/js/production.min.js'
+        src: 'docs/js/production.js',
+        dest: 'docs/js/production.min.js'
       }
     },
     processhtml: {
@@ -67,7 +67,7 @@ module.exports = function(grunt) {
           outputStyle: 'compressed'
         },
         files: {                         // Dictionary of files
-          'prod/css/style.css': 'dev/scss/style.scss',
+          'docs/css/style.css': 'dev/scss/style.scss',
            // 'destination': 'source'
         }
       }
@@ -87,7 +87,7 @@ module.exports = function(grunt) {
           uglify: true
         },
         src: 'index.html',
-        dest: 'prod/index.html'
+        dest: 'docs/index.html'
       }
     },
     jshint: {
